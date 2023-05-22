@@ -1,4 +1,50 @@
-#Zadání PHP aplikace - Vokounová Eliška (voke01)
+Zadání PHP aplikace - Vokounová Eliška (voke01)
+-------------------------------------------------
+--------------------------------------------------
+Zadání
+----------------------------
+Aplikace by sloužila k evidenci rostlin.
+Ke každé rostlině by bylo možné doplnit informace:
+- o jejím jméně,
+- latinském názvu,
+- stáří (kdy byla zakoupena),
+- jak častou zálivku potřebuje,
+- zda má raději slunné nebo stinné místo,
+- jakou teplotu má ráda,
+- z jakého kontinentu pochází
+- a zda má ráda rosení.
+
+K rostlině by dále bylo možné vkládat i doplňující komentáře (popis). 
+Každá rostlina patří právě jednomu uživateli. 
+Jedna rostlina může spadat do žádné či více kategorií:
+- "pro začátečníky", 
+- "pro pokročilé",
+- "vhodné k mazlíčkům",
+- "pokojová rostlina"...).
+
+Podle kategorií také bude fungovat filtrování (zobrazování jen seznamu rostlin, které spadají do dané kategorie).
+V rámci aplikace se uživatel
+- bude muset registrovat 
+- a následně přihlásit, aby se mohl koukat na seznam svých rostlin. 
+
+Do svého seznamu si může přidat novou rostlinu, editovat ji nebo ji smazat. 
+V databázové tabulce rostlin tedy bude i pole, kdy byl záznam upraven.
+Po přihlášení uživatel vidí i rostliny ostatních uživatelů a může jim dát like (nikoliv je editovat nebo mazat). Tím se rostlina přidá do uživvatelova nového seznamu "Oblíbené rostliny".
+
+Celkem by tedy vznikly tabulky:
+- user,
+- plant,
+- category,
+- plant_category_map,
+- plant_user_like_map.
+
+
+
+
+
+
+
+Historie
 ---------------------------------------------------
 Aplikace by sloužila k evidenci rostlin. Ke každé rostlině by bylo možné doplnit informace o jejím:
 - jméně,
