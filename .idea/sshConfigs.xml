@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig connectionConfig="{&quot;serverAliveInterval&quot;:300}" host="esotemp.vse.cz" id="f5cd5bba-21b9-47be-9e4e-ab45c874f180" keyPath="C:\Users\Eliška\.ssh\priv_key.ppk" port="22" nameFormat="DESCRIPTIVE" username="voke01" useOpenSSHConfig="false" />
+    </configs>
+  </component>
+</project>

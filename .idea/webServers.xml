@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="ae347e2b-0ba3-4a05-9ab7-ad68d442798b" name="esotemp">
+        <fileTransfer rootFolder="/home/voke01/public_html" accessType="SFTP" host="esotemp.vse.cz" port="22" sshConfigId="f5cd5bba-21b9-47be-9e4e-ab45c874f180" sshConfig="voke01@esotemp.vse.cz:22 key" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
