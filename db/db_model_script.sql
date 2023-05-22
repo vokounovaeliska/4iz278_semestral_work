@@ -6,18 +6,18 @@
 -- To reset the sample schema, replace everything with
 -- two dots ('..' - without quotes).
 CREATE TABLE `user` (
-                        `user_id` int  NOT NULL ,
-                        `name` varchar(200)  NOT NULL ,
+                        `user_id` int  NOT NULL AUTO_INCREMENT ,
+                        `name` varchar(200) COLLATE utf8_czech_ci NOT NULL ,
                         PRIMARY KEY (
                                      `user_id`
                             )
 );
 
 CREATE TABLE `plant` (
-                         `plant_id` int  NOT NULL ,
-                         `name` varchar(200)  NOT NULL ,
-                         `latin_name` varchar(200)  NULL ,
-                         `description` text  NULL ,
+                         `plant_id` int  NOT NULL AUTO_INCREMENT,
+                         `name` varchar(200) COLLATE utf8_czech_ci NOT NULL ,
+                         `latin_name` varchar(200) COLLATE utf8_czech_ci NULL ,
+                         `description` text COLLATE utf8_czech_ci  NULL ,
                          `owner` int  NOT NULL ,
                          `bought_date` datetime  NULL ,
                          `water_frequency` int  NULL ,
@@ -25,21 +25,22 @@ CREATE TABLE `plant` (
                          `lighting` enum('direct','indirect')  NULL ,
                          `origin` enum('Europe','Asia','South America','North America','Australia')  NULL ,
                          `humidity` boolean  NULL ,
+                         `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                          PRIMARY KEY (
                                       `plant_id`
                              )
 );
 
 CREATE TABLE `category` (
-                            `category_id` int  NOT NULL ,
-                            `name` varchar(200)  NOT NULL ,
+                            `category_id` int  NOT NULL AUTO_INCREMENT ,
+                            `name` varchar(200) COLLATE utf8_czech_ci  NOT NULL ,
                             PRIMARY KEY (
                                          `category_id`
                                 )
 );
 
 CREATE TABLE `plant_category_map` (
-                                      `plant_category_map_id` int  NOT NULL ,
+                                      `plant_category_map_id` int  NOT NULL AUTO_INCREMENT,
                                       `plant_id` int  NOT NULL ,
                                       `category_id` int  NOT NULL ,
                                       PRIMARY KEY (
@@ -48,7 +49,7 @@ CREATE TABLE `plant_category_map` (
 );
 
 CREATE TABLE `plant_user_like_map` (
-                                       `plant_user_like_map_id` int  NOT NULL ,
+                                       `plant_user_like_map_id` int  NOT NULL AUTO_INCREMENT,
                                        `plant_id` int  NOT NULL ,
                                        `user_id` int  NOT NULL ,
                                        PRIMARY KEY (
