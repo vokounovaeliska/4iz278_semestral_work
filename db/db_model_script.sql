@@ -8,6 +8,8 @@
 CREATE TABLE `user` (
                         `user_id` int  NOT NULL AUTO_INCREMENT ,
                         `name` varchar(200) COLLATE utf8_czech_ci NOT NULL ,
+                         `role` varchar(20) COLLATE utf8_czech_ci NOT NULL,
+                         `active` tinyint(1) NOT NULL,
                         PRIMARY KEY (
                                      `user_id`
                             )
@@ -78,3 +80,61 @@ CREATE INDEX `idx_user_name`
 CREATE INDEX `idx_plant_name`
     ON `plant` (`name`);
 
+CREATE TABLE IF NOT EXISTS `resources` (
+  `role` varchar(20) COLLATE utf8_czech_ci NOT NULL,
+  `resource` varchar(100) COLLATE utf8_czech_ci NOT NULL,
+  `action` varchar(100) COLLATE utf8_czech_ci NOT NULL,
+  PRIMARY KEY (`role`,`resource`,`action`),
+  KEY `role` (`role`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující přehled oprávnění přístupu ke zdrojům';
+
+INSERT INTO `resources` (`role`, `resource`, `action`) VALUES
+('admin', 'category', ''),
+('admin', 'user', ''),
+('editor', 'article', ''),
+('editor', 'comment', ''),
+('guest', 'article', 'list'),
+('guest', 'article', 'show'),
+('guest', 'homepage', ''),
+('guest', 'user', 'login'),
+('guest', 'user', 'register'),
+('registered', 'comment', 'new'),
+('registered', 'user', 'logout');
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `roles`
+--
+
+CREATE TABLE IF NOT EXISTS `roles` (
+  `id` varchar(20) COLLATE utf8_czech_ci NOT NULL,
+  `parent_id` varchar(20) COLLATE utf8_czech_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `parent_role` (`parent_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující přehled podporovaných rolí';
+
+--
+-- Vypisuji data pro tabulku `roles`
+--
+
+INSERT INTO `roles` (`id`, `parent_id`) VALUES
+('guest', NULL),
+('admin', 'editor'),
+('registered', 'guest'),
+('editor', 'registered');
+
+ALTER TABLE `resources`
+  ADD CONSTRAINT `resources_ibfk_1` FOREIGN KEY (`role`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
+
+--
+-- Omezení pro tabulku `roles`
+--
+ALTER TABLE `roles`
+  ADD CONSTRAINT `parentRole` FOREIGN KEY (`parent_id`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
+
+--
+-- Omezení pro tabulku `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `userRule` FOREIGN KEY (`role`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
