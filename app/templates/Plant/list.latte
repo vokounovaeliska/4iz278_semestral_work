@@ -5,7 +5,6 @@
   {if $user->isAllowed('plant','add') && $category->category_id!=6}
     <a href="{link Plant:add category=>$category->category_id}">přidat květinu...</a>
   {/if}
-
     {if $category->category_id==5}
      {foreach $plantsMine as $plant}
            <plant>

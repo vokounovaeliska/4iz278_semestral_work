@@ -2,7 +2,7 @@
   <plant>
     <h1 n:block="title">{$plant->name}</h1>
 
-    {if $user->isAllowed('plant','edit')}
+    {if $user->isAllowed('plant','edit') && $plant->owner_id==$user->identity->id }
       <a href="{link Plant:edit id=>$plant->plant_id}">upravit květinu</a>
     {/if}
 
@@ -25,6 +25,11 @@
       <dd>{if $plant->humidity==1} ano {else} ne {/if}</dd>
       <dt>Původ</dt>
       <dd>{$plant->origin}</dd>
+      <dt>Obrázek</dt>
+       {var $base64Data = base64_encode($plant->image)}
+           <img width="500" src="data:image/jpeg;base64,{$base64Data}" alt="Obrázek rostliny">
+
+      </dd>
     </dl>
 
     {$plant->last_modified|noescape}

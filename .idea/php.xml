@@ -10,6 +10,31 @@
     <option name="highlightLevel" value="WARNING" />
     <option name="transferred" value="true" />
   </component>
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/nette/application" />
+      <path value="$PROJECT_DIR$/vendor/nette/schema" />
+      <path value="$PROJECT_DIR$/vendor/nette/di" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+      <path value="$PROJECT_DIR$/vendor/latte/latte" />
+      <path value="$PROJECT_DIR$/vendor/nette/safe-stream" />
+      <path value="$PROJECT_DIR$/vendor/tracy/tracy" />
+      <path value="$PROJECT_DIR$/vendor/nette/forms" />
+      <path value="$PROJECT_DIR$/vendor/nette/neon" />
+      <path value="$PROJECT_DIR$/vendor/nette/routing" />
+      <path value="$PROJECT_DIR$/vendor/nette/security" />
+      <path value="$PROJECT_DIR$/vendor/nette/robot-loader" />
+      <path value="$PROJECT_DIR$/vendor/nette/utils" />
+      <path value="$PROJECT_DIR$/vendor/nette/bootstrap" />
+      <path value="$PROJECT_DIR$/vendor/nette/caching" />
+      <path value="$PROJECT_DIR$/vendor/nette/finder" />
+      <path value="$PROJECT_DIR$/vendor/nette/php-generator" />
+      <path value="$PROJECT_DIR$/vendor/nette/mail" />
+      <path value="$PROJECT_DIR$/vendor/nette/http" />
+      <path value="$PROJECT_DIR$/vendor/nette/database" />
+      <path value="$PROJECT_DIR$/vendor/nette/component-model" />
+    </include_path>
+  </component>
   <component name="PhpInterpreters">
     <interpreters>
       <interpreter id="85d61283-1ff4-4313-9ca6-78030dd9874c" name="voke01@esotemp.vse.cz:22 key" home="sshConfig://DATA" false="false" debugger_id="php.debugger.XDebug" custom_ini="/usr/bin/php.default">

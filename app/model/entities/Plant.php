@@ -40,7 +40,8 @@ class Plant{
         'lighting' => $this->lighting,
         'origin' => $this->origin,
         'humidity' => $this->humidity,
-        'last_modified' => $this->last_modified
+        'last_modified' => $this->last_modified,
+        'image' => $this->image
     ];
     if (!empty($this->plant_id)){
       $result['plant_id']=$this->plant_id;

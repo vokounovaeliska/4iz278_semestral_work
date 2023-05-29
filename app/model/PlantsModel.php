@@ -51,7 +51,7 @@ class PlantsModel{
    */
   public function find($id,$includeTextAliases=false){
     if ($includeTextAliases){
-      $sql='SELECT plant.*,user.name as owner, category.name AS categoryName 
+      $sql='SELECT plant.*,user.name as owner, user.user_id as owner_id, category.name AS categoryName 
             FROM plant LEFT JOIN user ON plant.owner=user.user_id 
             left join plant_category_map on plant.plant_id=plant_category_map.plant_id 
             LEFT JOIN category ON plant_category_map.category_id=category.category_id 
