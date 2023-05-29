@@ -1,0 +1,31 @@
+{block content}
+  <plant>
+    <h1 n:block="title">{$plant->name}</h1>
+
+    {if $user->isAllowed('plant','edit')}
+      <a href="{link Plant:edit id=>$plant->plant_id}">upravit květinu</a>
+    {/if}
+
+    <dl class="articleInfo">
+      <dt>Majitel:</dt>
+      <dd><a href="{link Plant:listByOwner category=>$plant->owner}">{$plant->owner}</a></dd>
+      <dt>Latinský název:</dt>
+      <dd>{$plant->latin_name}</dd>
+      <dt>Popis:</dt>
+      <dd>{$plant->description}</dd>
+      <dt>Datum pořízení/nákupu:</dt>
+      <dd>{$plant->bought_date}</dd>
+      <dt>Frekvence zalévání (po kolika dnech):</dt>
+      <dd>{$plant->water_frequency}</dd>
+      <dt>Vhodná teplota</dt>
+      <dd>{$plant->temperature}</dd>
+      <dt>Světlo</dt>
+      <dd>{$plant->lighting}</dd>
+      <dt>Má ráda rosení</dt>
+      <dd>{if $plant->humidity==1} ano {else} ne {/if}</dd>
+      <dt>Původ</dt>
+      <dd>{$plant->origin}</dd>
+    </dl>
+
+    {$plant->last_modified|noescape}
+  </plant>

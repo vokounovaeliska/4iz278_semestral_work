@@ -1,0 +1,36 @@
+{block content}
+
+  <h1 n:block="title">{$category->name}</h1>
+
+  {if $user->isAllowed('plant','add') && $category->category_id!=6}
+    <a href="{link Plant:add category=>$category->category_id}">přidat květinu...</a>
+  {/if}
+
+    {if $category->category_id==5}
+     {foreach $plantsMine as $plant}
+           <plant>
+             <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
+             {$plant->latin_name|noescape}
+           </plant>
+         {/foreach}
+    {/if}
+
+    {if $category->category_id==6}
+         {foreach $plantsLiked as $plant}
+               <plant>
+                 <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
+                 {$plant->latin_name|noescape}
+               </plant>
+             {/foreach}
+    {/if}
+
+  {if !empty($plants) && $category->category_id!=5}
+    {foreach $plants as $plant}
+      <plant>
+        <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
+        {$plant->latin_name|noescape}
+      </plant>
+    {/foreach}
+  {else}
+    <p>Nebyly nalezeny žádné květiny</p>
+  {/if}

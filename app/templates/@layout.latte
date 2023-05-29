@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8">
   
-    <title>{ifset title}{include title|striptags} | {/ifset}Ukázkový jednoduchý blog</title>
+    <title>{ifset title}{include title|striptags} | {/ifset}Kytičky !!!</title>
   
     <link rel="stylesheet" href="{$basePath}/css/main.css">
     <link rel="stylesheet" href="{$basePath}/css/nette.css">
@@ -16,7 +16,7 @@
   </head>
   <body>
   	<header>
-      <h1><a href="{link Homepage:}">Jednoduchý blog</a></h1>
+      <h1><a href="{link Homepage:}">vítejte na stránce evidence kytiček</a></h1>
       <div id="currentUser">
         {if $user->isLoggedIn()}
           Přihlášený uživatel: <strong>{$user->identity->name}</strong> ({$user->identity->email})
@@ -30,8 +30,13 @@
       <nav>
         <ul>
           {foreach $categories as $categoryItem}
-            <li><a href="{link Article:list category=>$categoryItem->id}" {if (!empty($category) && $categoryItem->id==$category->id)}class="active"{/if}>{$categoryItem->name}</a></li>
-          {/foreach}
+                {if ($categoryItem->category_id==5 || $categoryItem->category_id==6) && !$user->isLoggedIn() }
+                {else}
+                <li><a href="{link Plant:list category=>$categoryItem->category_id}"
+                   {if (!empty($category) && $categoryItem->category_id==$category->category_id)}class="active"{/if}>{$categoryItem->name}</a></li>
+                {/if}
+
+           {/foreach}
         </ul>
       </nav>
     {/if}

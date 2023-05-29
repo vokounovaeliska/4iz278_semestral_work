@@ -24,6 +24,8 @@ class PlantPresenter extends BasePresenter{
   public function renderList($category){
     $this->template->category=$this->categoriesModel->find($category);
     $this->template->plants=$this->plantsModel->findAll($category);
+    $this->template->plantsMine=$this->plantsModel->findMine($this->getUser()->getId());
+    $this->template->plantsLiked=$this->plantsModel->findLikedFlowers($this->getUser()->getId());
   }
 
   /**

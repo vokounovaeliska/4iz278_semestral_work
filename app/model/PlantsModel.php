@@ -3,6 +3,7 @@
 namespace Blog\Model;
 use \PDO;
 use Blog\Model\Entities\Plant;
+use Nette\Security\IIdentity;
 
 /**
  * Class PlantsModel - třída modelu pro práci s články v DB
@@ -19,7 +20,8 @@ class PlantsModel{
    */
   public function findAll($category=null){
     if ($category>0){
-      $query=$this->pdo->prepare('SELECT * FROM plant left join plant_category_map WHERE plant_category_map.category_id=:category;');
+      $query=$this->pdo->prepare('SELECT * FROM plant left join plant_category_map  on plant.plant_id = plant_category_map.plant_id 
+         where plant_category_map.category_id=:category;');
       $query->execute([':category'=>$category]);
     }else{
       $query=$this->pdo->prepare('SELECT * FROM plant');
@@ -27,6 +29,19 @@ class PlantsModel{
     }
     return $query->fetchAll(PDO::FETCH_CLASS,__NAMESPACE__.'\Entities\Plant');
   }
+
+    public function findMine($user){
+      $query=$this->pdo->prepare('SELECT * FROM plant where owner=:owner;');
+      $query->execute([':owner'=>$user]);
+      return $query->fetchAll(PDO::FETCH_CLASS,__NAMESPACE__.'\Entities\Plant');
+    }
+
+    public function findLikedFlowers($user){
+        $query=$this->pdo->prepare('SELECT * FROM plant left join plant_user_like_map on plant.plant_id = plant_user_like_map.plant_id
+         where plant_user_like_map.user_id=:user;');
+        $query->execute([':user'=>$user]);
+        return $query->fetchAll(PDO::FETCH_CLASS,__NAMESPACE__.'\Entities\Plant');
+    }
 
   /**
    * Funkce pro nalezení jednoho článku
