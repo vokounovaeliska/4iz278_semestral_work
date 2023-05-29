@@ -41,6 +41,11 @@ CREATE TABLE `category` (
                                 )
 );
 
+INSERT INTO `category`( `name`) VALUES ('Pro začátečníky');
+INSERT INTO `category`( `name`) VALUES ('Pro pokročilé');
+INSERT INTO `category`( `name`) VALUES ('K mazlíčkům');
+INSERT INTO `category`( `name`) VALUES ('Čističky vzduchu');
+
 CREATE TABLE `plant_category_map` (
                                       `plant_category_map_id` int  NOT NULL AUTO_INCREMENT,
                                       `plant_id` int  NOT NULL ,
@@ -91,10 +96,10 @@ CREATE TABLE IF NOT EXISTS `resources` (
 INSERT INTO `resources` (`role`, `resource`, `action`) VALUES
 ('admin', 'category', ''),
 ('admin', 'user', ''),
-('editor', 'article', ''),
+('editor', 'plant', ''),
 ('editor', 'comment', ''),
-('guest', 'article', 'list'),
-('guest', 'article', 'show'),
+('guest', 'plant', 'list'),
+('guest', 'plant', 'show'),
 ('guest', 'homepage', ''),
 ('guest', 'user', 'login'),
 ('guest', 'user', 'register'),
