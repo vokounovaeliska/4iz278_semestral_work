@@ -96,6 +96,10 @@ class PlantsModel{
       $paramsArr[':id']=$plant->plant_id;
       $query=$this->pdo->prepare($sql);
       $result=$query->execute($paramsArr);
+      $categories = [$plant->categories];
+         foreach($categories as $category){
+            $this->insertIntoPlantCategoryMap($plant->plant_id, $category);
+         }
     }else{
       //insert nového článku
       $sql='INSERT INTO plant (';
@@ -113,6 +117,17 @@ class PlantsModel{
     return $result;
   }
 
+  public function insertIntoPlantCategoryMap($plant, $category){
+      $sqlSelect = 'SELECT * FROM plant_category_map WHERE plant_id = :plant_id AND category_id = :category_id;';
+
+      $query2=$this->pdo->prepare($sqlSelect);
+      $query2->execute([':plant_id' => $plant, ':category_id' => $category]);
+      if(empty($query2->fetchAll())) {
+          $sql = 'INSERT INTO plant_category_map (plant_id, category_id) VALUES (:plant_id, :category_id)';
+          $query = $this->pdo->prepare($sql);
+          $result = $query->execute([':plant_id' => $plant, ':category_id' => $category]);
+      }
+  }
 
   /**
    * PlantsModel constructor

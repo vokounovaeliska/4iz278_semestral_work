@@ -66,7 +66,7 @@ class PlantPresenter extends BasePresenter{
    */
   public function actionEdit($id){
     if (!$plant=$this->plantsModel->find($id)){
-      throw new BadRequestException('Požadovaný článek nebyl nalezen.');
+      throw new BadRequestException('Požadovaná květina nebyla nalezena.');
     }
     $form=$this->getComponent('editForm');
     $form->setDefaults([
@@ -91,17 +91,38 @@ class PlantPresenter extends BasePresenter{
       ->setRequired('Je nutné zadat název ');
     $form->addTextArea('latin_name','Latinský název:')
       ->setHtmlAttribute('class','wysiwyg');
-    $form->addTextArea('description','Desc:')
-      ->setRequired('Je nuté zadat desc.')
+    $form->addTextArea('description','Popisek:')
+      ->setRequired('Je nuté zadat popisek.')
       ->setHtmlAttribute('class','wysiwyg');
+    $form->addText('bought_date', 'Datum pořízení')
+        ->setType('date')
+        ->setRequired('Je nutné zadat datum')
+        ->setHtmlAttribute('class','wysiwyg');
+    $form->addInteger('water_frequency', 'Jak často zalévat (po koloka dnech)')
+          ->setHtmlAttribute('class','wysiwyg');
+    $form->addInteger('temperature', 'Twwplota')
+          ->setHtmlAttribute('class','wysiwyg');
+    $svetlo=['direct', 'indirect'];
+    $form->addSelect('lighting', 'Svetlo', $svetlo)
+      ->setHtmlAttribute('class','wysiwyg');
+     $origin=['Europe','Asia','South America','North America', 'Australia'];
+    $form->addSelect('origin', 'Země původu', $origin)
+        ->setHtmlAttribute('class','wysiwyg');
+    $AnoNe=[];
+    $AnoNe[1] = 'ano';
+    $AnoNe[0] = 'ne';
+    $form->addSelect('humidity', 'Vlhkost', $AnoNe)
+          ->setHtmlAttribute('class','wysiwyg');
+
     $categories=$this->categoriesModel->findAll();
     $categoriesArr=[];
     foreach($categories as $category){
-      $categoriesArr[$category->id]=$category->name;
+        if($category->category_id!=5) {
+            $categoriesArr[$category->category_id] = $category->name;
+        }
     }
-    $form->addSelect('category','Kategorie',$categoriesArr)
-      ->setPrompt('--vyberte--')
-      ->setRequired('Je nutné vybrat kategorii.');
+    $form->addCheckboxList('category','Kategorie',$categoriesArr);
+    $form->addUpload('image', 'Obrázek');
     $form->addSubmit('save','uložit')
       ->onClick[]=function(SubmitButton $button){
       //funkce po úspěšném odeslání formuláře
@@ -112,7 +133,10 @@ class PlantPresenter extends BasePresenter{
           $plant->name=$data['name'];
           $plant->latin_name=$data['latin_name'];
           $plant->description=$data['description'];
-        //  $plant->category=$data['category'];
+          $selectedCategories = $data['category'];
+          foreach ($selectedCategories as $category) {
+              $plant->categories = $category;
+          }
           $plant->owner=$this->user->id;
         $result=$this->plantsModel->save($plant);
       }else{
@@ -130,7 +154,7 @@ class PlantPresenter extends BasePresenter{
       }else{
         $this->flashMessage('Článek se nepodařilo uložit.','error');
       }
-      if ($plant->id>0){
+      if ($plant->plant_id>0){
         $this->redirect('Plant:show',['id'=>$plant->plant_id]);
       }else{
         $this->redirect('Homepage:default');
