@@ -3,6 +3,7 @@
 namespace Blog\Presenters;
 
 use Blog\Model\CategoriesModel;
+use Blog\Model\UsersModel;
 use Blog\Model\Entities\Plant;
 use Nette\Application\BadRequestException;
 use Blog\Model\PlantsModel;
@@ -16,6 +17,7 @@ use Nette\Forms\Controls\SubmitButton;
 class PlantPresenter extends BasePresenter{
   /** @var  PlantsModel $plantsModel */
   private $plantsModel;
+  private $usersModel;
 
   /**
    * Akce pro zobrazení přehledu článků
@@ -28,6 +30,10 @@ class PlantPresenter extends BasePresenter{
     $this->template->plantsLiked=$this->plantsModel->findLikedFlowers($this->getUser()->getId());
   }
 
+  public function renderListByOwner($owner){
+      $this->template->owner=$this->usersModel->findById($owner);
+      $this->template->plantsByOwner=$this->plantsModel->findMine($owner);
+  }
   /**
    * Akce pro zobrazení jednoho článku
    * @param int $id
@@ -156,4 +162,14 @@ class PlantPresenter extends BasePresenter{
     $this->plantsModel=$plantsModel;
   }
   #endregion injections
+    #region injections
+    /**
+     * @param UsersModel $userModel
+     */
+    public function injectUsersModel(UsersModel $userModel){
+        $this->usersModel=$userModel;
+    }
+    #endregion injections
+
+
 }

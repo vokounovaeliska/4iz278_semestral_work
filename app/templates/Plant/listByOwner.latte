@@ -1,0 +1,19 @@
+{block content}
+
+  <h1 n:block="title">{$owner->name}</h1>
+
+  {if !$user->isAllowed('plant','like')}
+    <a href="{link Plant:like plant=>$plant->id}">lajkni květinu...</a>
+  {/if}
+
+  {if !empty($plantsByOwner)}
+    {foreach $plantsByOwner as $plant}
+      <plant>
+        <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
+        {$plant->latin_name|noescape}
+      </plant>
+    {/foreach}
+  {else}
+
+    <p>Nebyly nalezeny žádné květiny</p>
+  {/if}
