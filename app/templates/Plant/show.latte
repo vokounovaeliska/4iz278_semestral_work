@@ -1,0 +1,46 @@
+{block content}
+  <plant>
+    <h1 n:block="title">{$plant->name}</h1>
+
+    {if $user->isAllowed('plant','edit') && $plant->owner_id==$user->identity->id }
+      <a href="{link Plant:edit id=>$plant->plant_id}">upravit květinu</a>
+    {/if}
+
+    <dl class="articleInfo">
+      <dt>Majitel:</dt>
+      <dd><a href="{link Plant:listByOwner owner=>$plant->owner_id}">{$plant->owner}</a></dd>
+      <dt>Latinský název:</dt>
+      <dd>{$plant->latin_name}</dd>
+      <dt>Popis:</dt>
+      <dd>{$plant->description}</dd>
+      <dt>Datum pořízení/nákupu:</dt>
+      <dd>{$plant->getBoughtDate()}</dd>
+      <dt>Frekvence zalévání (po kolika dnech):</dt>
+      <dd>{$plant->getWaterFrequency()}</dd>
+      <dt>Vhodná teplota</dt>
+      <dd>{$plant->getTemperature()}</dd>
+      <dt>Světlo</dt>
+      <dd>{$plant->getLighting()}</dd>
+      <dt>Má ráda rosení</dt>
+      <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
+      <dt>Původ</dt>
+      <dd>{$plant->getOrigin()}</dd>
+    </dl>
+
+    <div>
+        {var $imageData = $plant->getImage()}
+        {var $imageFormat = $plant->getImageType()}
+        {if $imageData !== null}
+          {var $image = Nette\Utils\Image::fromString(base64_decode($imageData))}
+          {if $image !== null}
+            <img width="300" src="data:{$imageFormat};base64,{$imageData}" alt="Obrázek rostliny">
+          {else}
+            Invalid image data.
+          {/if}
+        {else}
+          No image available.
+        {/if}
+    </div>
+
+    {$plant->getLastModified()|noescape}
+  </plant>
