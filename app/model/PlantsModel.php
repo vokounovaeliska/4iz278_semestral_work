@@ -51,10 +51,8 @@ class PlantsModel{
    */
   public function find($id,$includeTextAliases=false){
     if ($includeTextAliases){
-      $sql='SELECT plant.*,user.name as owner, user.user_id as owner_id, category.name AS categoryName 
+      $sql='SELECT plant.*,user.name as owner, user.user_id as owner_id 
             FROM plant LEFT JOIN user ON plant.owner=user.user_id 
-            left join plant_category_map on plant.plant_id=plant_category_map.plant_id 
-            LEFT JOIN category ON plant_category_map.category_id=category.category_id 
             WHERE plant.plant_id=:id LIMIT 1;';
     }else{
       $sql='SELECT * FROM plant WHERE plant.plant_id=:id LIMIT 1;';
@@ -88,7 +86,11 @@ class PlantsModel{
       //updatujeme existující článek
       $sql='';
       foreach($dataArr as $key=>$value){
-        if ($key=='id'){continue;}
+       if ($key=='id'){continue;}
+        if ($value instanceof \DateTime) {
+          $value = $value->format('Y-m-d H:i:s'); // Convert DateTime object to string
+        }
+
         $sql.=($sql!=''?',':'').' '.$key.'=:'.$key;
         $paramsArr[':'.$key]=$value;
       }
@@ -96,7 +98,7 @@ class PlantsModel{
       $paramsArr[':id']=$plant->plant_id;
       $query=$this->pdo->prepare($sql);
       $result=$query->execute($paramsArr);
-      $categories = [$plant->categories];
+      $categories = $plant->getCategories();
          foreach($categories as $category){
             $this->insertIntoPlantCategoryMap($plant->plant_id, $category);
          }
@@ -106,6 +108,9 @@ class PlantsModel{
       $sql.=implode(',',array_keys($dataArr));
       $sql.=')VALUES(';
       foreach($dataArr as $key=>$value){
+          if ($value instanceof \DateTime) {
+              $value = $value->format('Y-m-d H:i:s'); // Convert DateTime object to string
+          }
         $paramsArr[':'.$key]=$value;
       }
       $sql.=implode(',',array_keys($paramsArr));

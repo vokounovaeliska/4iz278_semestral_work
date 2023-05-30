@@ -9,7 +9,16 @@
      {foreach $plantsMine as $plant}
            <plant>
              <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
-             {$plant->latin_name|noescape}
+             {$plant->latin_name}
+             <br />
+             {var $imageData = $plant->getImage()}
+                 {var $imageFormat = $plant->getImageType()}
+                 {if $imageData !== null}
+                       {var $image = Nette\Utils\Image::fromString(base64_decode($imageData))}
+                       {if $image !== null}
+                           <img width="200" src="data:{$imageFormat};base64,{$imageData}" alt="Obrázek rostliny">
+                       {/if}
+                   {/if}
            </plant>
          {/foreach}
     {/if}
@@ -18,7 +27,16 @@
          {foreach $plantsLiked as $plant}
                <plant>
                  <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
-                 {$plant->latin_name|noescape}
+                 {$plant->latin_name}
+                 <br />
+             {var $imageData = $plant->getImage()}
+                 {var $imageFormat = $plant->getImageType()}
+                 {if $imageData !== null}
+                       {var $image = Nette\Utils\Image::fromString(base64_decode($imageData))}
+                       {if $image !== null}
+                           <img width="200" src="data:{$imageFormat};base64,{$imageData}" alt="Obrázek rostliny">
+                       {/if}
+                   {/if}
                </plant>
              {/foreach}
     {/if}
@@ -27,9 +45,16 @@
     {foreach $plants as $plant}
       <plant>
         <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
-        {$plant->latin_name|noescape}
+        {$plant->latin_name}
+        <br />
+             {var $imageData = $plant->getImage()}
+                 {var $imageFormat = $plant->getImageType()}
+        {if $imageData !== null}
+              {var $image = Nette\Utils\Image::fromString(base64_decode($imageData))}
+              {if $image !== null}
+                  <img width="200" src="data:{$imageFormat};base64,{$imageData}" alt="Obrázek rostliny">
+              {/if}
+          {/if}
       </plant>
     {/foreach}
-  {else}
-    <p>Nebyly nalezeny žádné květiny</p>
   {/if}

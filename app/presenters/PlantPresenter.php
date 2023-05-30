@@ -9,6 +9,10 @@ use Nette\Application\BadRequestException;
 use Blog\Model\PlantsModel;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
+use Nette\Http\FileUpload;
+use Nette\Utils\DateTime;
+use Intervention\Image\ImageManagerStatic as Image;
+
 
 /**
  * Class PlantPresenter - ukázka základního presenteru pro zobrazení článku/článků
@@ -74,9 +78,17 @@ class PlantPresenter extends BasePresenter{
       'name'=>$plant->name,
       'latin_name'=>$plant->latin_name,
       'description'=>$plant->description,
-      'humidity'=>$plant->humidity,
-      'owner'=>$plant->owner,
-      'temperature'=>$plant->temperature
+      'owner' => $plant->owner,
+      'bought_date'=>$plant->getBoughtDate(),
+      'water_frequency'=>$plant->getWaterFrequency(),
+      'temperature'=>$plant->getTemperature(),
+      'lighting' => $plant->getLightingValue(),
+      'origin' => $plant->getOriginValue(),
+      'humidity' => $plant->isHumidity(),
+      'last_modified' => $plant->getLastModified(),
+      'image' => $plant->getImage(),
+      'categories' => $plant->getCategories(),
+      'last_modified' => new \DateTime()
     ]);
   }
 
@@ -102,18 +114,25 @@ class PlantPresenter extends BasePresenter{
           ->setHtmlAttribute('class','wysiwyg');
     $form->addInteger('temperature', 'Twwplota')
           ->setHtmlAttribute('class','wysiwyg');
-    $svetlo=['direct', 'indirect'];
+    $svetlo=[
+      1 => 'direct',
+      2 => 'indirect'];
     $form->addSelect('lighting', 'Svetlo', $svetlo)
       ->setHtmlAttribute('class','wysiwyg');
-     $origin=['Europe','Asia','South America','North America', 'Australia'];
-    $form->addSelect('origin', 'Země původu', $origin)
+      $origin = [
+          1 => 'Europe',
+          2 => 'Asia',
+          3 => 'South America',
+          4 => 'North America',
+          5 => 'Australia'
+      ];
+      $form->addSelect('origin', 'Země původu', $origin)
         ->setHtmlAttribute('class','wysiwyg');
-    $AnoNe=[];
-    $AnoNe[1] = 'ano';
-    $AnoNe[0] = 'ne';
-    $form->addSelect('humidity', 'Vlhkost', $AnoNe)
+         $AnoNe=[
+            1 => 'ano',
+            0 => 'ne'];
+        $form->addSelect('humidity', 'Vlhkost', $AnoNe)
           ->setHtmlAttribute('class','wysiwyg');
-
     $categories=$this->categoriesModel->findAll();
     $categoriesArr=[];
     foreach($categories as $category){
@@ -122,7 +141,8 @@ class PlantPresenter extends BasePresenter{
         }
     }
     $form->addCheckboxList('category','Kategorie',$categoriesArr);
-    $form->addUpload('image', 'Obrázek');
+    $form->addUpload('image', 'Obrázek')
+        ->setHtmlAttribute('accept', '.jpg,.jpeg,.png');
     $form->addSubmit('save','uložit')
       ->onClick[]=function(SubmitButton $button){
       //funkce po úspěšném odeslání formuláře
@@ -130,25 +150,35 @@ class PlantPresenter extends BasePresenter{
       if ($data['plant_id']>0){
         //aktualizujeme existující článek
         $plant=$this->plantsModel->find($data['plant_id']);
-          $plant->name=$data['name'];
-          $plant->latin_name=$data['latin_name'];
-          $plant->description=$data['description'];
-          $selectedCategories = $data['category'];
-          foreach ($selectedCategories as $category) {
-              $plant->categories = $category;
-          }
-          $plant->owner=$this->user->id;
-        $result=$this->plantsModel->save($plant);
       }else{
         //zobrazíme nový článek
         $plant=new Plant();
+      }
           $plant->name=$data['name'];
           $plant->latin_name=$data['latin_name'];
           $plant->description=$data['description'];
-       // $plant->category=$data['category'];
-        $plant->owner=$this->user->id;
+          $plant->setBoughtDate($data['bought_date']);
+          $plant->setWaterFrequency($data['water_frequency']);
+          $plant->setTemperature($data['temperature']);
+          $plant->setLighting($data['lighting']);
+          $plant->setOrigin($data['origin']);
+          $plant->setHumidity($data['humidity']);
+          $file = $button->form->getValues()->image;
+            if ($file->isOk()) {
+            $imageContents = base64_encode($file->getContents());
+            $plant->setImage($imageContents);
+            $imageType = $file->getContentType();
+            $plant->setImageType($imageType);
+        }
+
+
+          $selectedCategories = $data['category'];
+          $plant->setCategories($selectedCategories);
+          $plant->owner=$this->user->id;
+
+
         $result=$this->plantsModel->save($plant);
-      }
+
       if ($result){
         $this->flashMessage('Článek byl úspěšně uložen.');
       }else{
@@ -165,7 +195,7 @@ class PlantPresenter extends BasePresenter{
       ->onClick[]=function(SubmitButton $button){
       //funkce po kliknutí na tlačítko pro zrušení
       $data=$button->form->getValues(true);
-      if ($data['id']>0){
+      if ($data['plant_id']>0){
         $this->redirect('Plant:show',['id'=>$data['plant_id']]);//přesměrování na zobrazení daného článku
       }elseif($data['category']>0){
         $this->redirect('Plant:list',['category'=>$data['category']]);//přesměrování na zobrazení kategorie

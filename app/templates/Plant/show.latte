@@ -14,23 +14,33 @@
       <dt>Popis:</dt>
       <dd>{$plant->description}</dd>
       <dt>Datum pořízení/nákupu:</dt>
-      <dd>{$plant->bought_date}</dd>
+      <dd>{$plant->getBoughtDate()}</dd>
       <dt>Frekvence zalévání (po kolika dnech):</dt>
-      <dd>{$plant->water_frequency}</dd>
+      <dd>{$plant->getWaterFrequency()}</dd>
       <dt>Vhodná teplota</dt>
-      <dd>{$plant->temperature}</dd>
+      <dd>{$plant->getTemperature()}</dd>
       <dt>Světlo</dt>
-      <dd>{$plant->lighting}</dd>
+      <dd>{$plant->getLighting()}</dd>
       <dt>Má ráda rosení</dt>
-      <dd>{if $plant->humidity==1} ano {else} ne {/if}</dd>
+      <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
       <dt>Původ</dt>
-      <dd>{$plant->origin}</dd>
+      <dd>{$plant->getOrigin()}</dd>
       <dt>Obrázek</dt>
-       {var $base64Data = base64_encode($plant->image)}
-           <img width="500" src="data:image/jpeg;base64,{$base64Data}" alt="Obrázek rostliny">
-
+      <dd>
+        {var $imageData = $plant->getImage()}
+        {var $imageFormat = $plant->getImageType()}
+        {if $imageData !== null}
+          {var $image = Nette\Utils\Image::fromString(base64_decode($imageData))}
+          {if $image !== null}
+            <img width="200" src="data:{$imageFormat};base64,{$imageData}" alt="Obrázek rostliny">
+          {else}
+            Invalid image data.
+          {/if}
+        {else}
+          No image available.
+        {/if}
       </dd>
     </dl>
 
-    {$plant->last_modified|noescape}
+    {$plant->getLastModified()|noescape}
   </plant>
