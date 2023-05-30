@@ -28,6 +28,8 @@ CREATE TABLE `plant` (
                          `origin` enum('Europe','Asia','South America','North America','Australia')  NULL ,
                          `humidity` boolean  NULL ,
                          `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                          `image` longblob null,                       
+                          `image_type` nvarchar(30) null
                          PRIMARY KEY (
                                       `plant_id`
                              )
@@ -41,10 +43,13 @@ CREATE TABLE `category` (
                                 )
 );
 
-INSERT INTO `category`( `name`) VALUES ('Pro začátečníky');
-INSERT INTO `category`( `name`) VALUES ('Pro pokročilé');
-INSERT INTO `category`( `name`) VALUES ('K mazlíčkům');
-INSERT INTO `category`( `name`) VALUES ('Čističky vzduchu');
+INSERT INTO `category` (`category_id`, `name`) VALUES
+(1, 'Pro začátečníky'),
+(2, 'Pro pokročilé'),
+(3, 'K mazlíčkům'),
+(4, 'Čističky vzduchu'),
+(5, 'Moje květinky'),
+(6, 'Oblíbené květiny');
 
 CREATE TABLE `plant_category_map` (
                                       `plant_category_map_id` int  NOT NULL AUTO_INCREMENT,
@@ -125,9 +130,8 @@ CREATE TABLE IF NOT EXISTS `roles` (
 
 INSERT INTO `roles` (`id`, `parent_id`) VALUES
 ('guest', NULL),
-('admin', 'editor'),
+('admin', 'registered'),
 ('registered', 'guest'),
-('editor', 'registered');
 
 ALTER TABLE `resources`
   ADD CONSTRAINT `resources_ibfk_1` FOREIGN KEY (`role`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
