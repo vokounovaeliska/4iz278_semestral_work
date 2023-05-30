@@ -14,21 +14,21 @@ body {
   box-shadow: 3px 3px 2px 0px rgba(0,0,0,0.19);
 }
 body a {
-  color: #006fb2;
+  color: #057705;
   text-decoration: underline;
 }
 body a:hover {
   text-decoration: none;
 }
 body header {
-  border-bottom: 1px solid #006fb2;
+  border-bottom: 1px solid #057705FF;
   position: relative;
 }
 body header h1 {
   padding: 20px 0 20px 20px;
 }
 body header h1 a {
-  color: #006fb2;
+  color: #057705FF;
   font-weight: normal;
   text-decoration: none;
   font-size: 36px;
@@ -40,7 +40,7 @@ body header div#currentUser {
   right: 10px;
 }
 body nav {
-  border-bottom: 1px solid #006fb2;
+  border-bottom: 1px solid #057705FF;
 }
 body nav ul {
   list-style: none;
@@ -53,10 +53,10 @@ body nav ul li a {
   display: block;
   padding: 8px 15px;
   text-decoration: none;
-  color: #006fb2;
+  color: #057705FF;
 }
 body nav ul li a.active {
-  background: #006fb2;
+  background: #057705FF;
   color: #fff;
 }
 body section#main {
@@ -71,14 +71,26 @@ body section#main h1 {
 body section#main h2 {
   font-weight: normal;
 }
-body section#main article dl.articleInfo dt {
-  display: inline;
-  padding: 0;
-  margin: 0;
+
+body section#main plant {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
-body section#main article dl.articleInfo dd {
-  padding: 0 10px 0 0;
-  margin: 0;
-  display: inline;
+
+body section#main plant h1, body section#main plant h2, body section#main plant a {
+  grid-column: 1 / 3;
+}
+
+
+body section#main plant dl.articleInfo dt {
   font-weight: bold;
 }
+body section#main plant dl.articleInfo dd {
+  margin-inline-start: 30px;
+
+}
+
+body section#main hr {
+  margin: 2vh 0 2vh 0;
+}
+

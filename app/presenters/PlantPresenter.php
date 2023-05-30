@@ -136,9 +136,9 @@ class PlantPresenter extends BasePresenter{
     $categories=$this->categoriesModel->findAll();
     $categoriesArr=[];
     foreach($categories as $category){
-        if($category->category_id!=5) {
+        //if($category->category_id!=5) {
             $categoriesArr[$category->category_id] = $category->name;
-        }
+        //}
     }
     $form->addCheckboxList('category','Kategorie',$categoriesArr);
     $form->addUpload('image', 'Obrázek')

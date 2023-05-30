@@ -25,22 +25,22 @@
       <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
       <dt>Původ</dt>
       <dd>{$plant->getOrigin()}</dd>
-      <dt>Obrázek</dt>
-      <dd>
+    </dl>
+
+    <div>
         {var $imageData = $plant->getImage()}
         {var $imageFormat = $plant->getImageType()}
         {if $imageData !== null}
           {var $image = Nette\Utils\Image::fromString(base64_decode($imageData))}
           {if $image !== null}
-            <img width="200" src="data:{$imageFormat};base64,{$imageData}" alt="Obrázek rostliny">
+            <img width="300" src="data:{$imageFormat};base64,{$imageData}" alt="Obrázek rostliny">
           {else}
             Invalid image data.
           {/if}
         {else}
           No image available.
         {/if}
-      </dd>
-    </dl>
+    </div>
 
     {$plant->getLastModified()|noescape}
   </plant>
