@@ -2,6 +2,8 @@
 
 namespace Blog\Model\Entities;
 
+use Nette\Utils\DateTime;
+
 
 /**
  * Class Plant
@@ -273,7 +275,7 @@ class Plant
     /**
      * @param date $last_modified
      */
-    public function setLastModified(date $last_modified): void
+    public function setLastModified(datetime $last_modified): void
     {
         $this->last_modified = $last_modified;
     }

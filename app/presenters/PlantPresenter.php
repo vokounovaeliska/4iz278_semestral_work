@@ -44,7 +44,7 @@ class PlantPresenter extends BasePresenter{
    * @throws BadRequestException
    */
   public function renderShow($id){
-    $plant=$this->plantsModel->find($id,true);
+    $plant=$this->plantsModel->find($id);
     if ($plant){
       $this->template->plant=$plant;
     }else{
@@ -88,7 +88,8 @@ class PlantPresenter extends BasePresenter{
       'last_modified' => $plant->getLastModified(),
       'image' => $plant->getImage(),
       'categories' => $plant->getCategories(),
-      'last_modified' => new \DateTime()
+      'last_modified' => new DateTime(),
+      'category' => $this->plantsModel->selectCategoriesByPlant($plant->plant_id)
     ]);
   }
 
@@ -99,6 +100,7 @@ class PlantPresenter extends BasePresenter{
   public function createComponentEditForm(){
     $form = new Form();
     $form->addHidden('plant_id');
+    $form->addHidden('last_modified');
     $form->addText('name','Název květiny:',null,200)
       ->setRequired('Je nutné zadat název ');
     $form->addTextArea('latin_name','Latinský název:')
@@ -154,7 +156,7 @@ class PlantPresenter extends BasePresenter{
         //zobrazíme nový článek
         $plant=new Plant();
       }
-          $plant->name=$data['name'];
+        $plant->name=$data['name'];
           $plant->latin_name=$data['latin_name'];
           $plant->description=$data['description'];
           $plant->setBoughtDate($data['bought_date']);
@@ -163,6 +165,7 @@ class PlantPresenter extends BasePresenter{
           $plant->setLighting($data['lighting']);
           $plant->setOrigin($data['origin']);
           $plant->setHumidity($data['humidity']);
+          $plant->setLastModified(new DateTime($button->form->getValues()->last_modified));
           $file = $button->form->getValues()->image;
             if ($file->isOk()) {
             $imageContents = base64_encode($file->getContents());
@@ -170,12 +173,10 @@ class PlantPresenter extends BasePresenter{
             $imageType = $file->getContentType();
             $plant->setImageType($imageType);
         }
-
-
           $selectedCategories = $data['category'];
+          array_push($selectedCategories, 5);
           $plant->setCategories($selectedCategories);
           $plant->owner=$this->user->id;
-
 
         $result=$this->plantsModel->save($plant);
 

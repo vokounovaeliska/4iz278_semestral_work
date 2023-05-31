@@ -57,17 +57,18 @@ class PlantsModel{
    * @param bool $includeTextAliases=false - pokud je true, dojde k načtení názvu kategorie a jména autora
    * @return Plant
    */
-  public function find($id,$includeTextAliases=false){
-    if ($includeTextAliases){
-      $sql='SELECT plant.*,user.name as owner, user.user_id as owner_id 
-            FROM plant LEFT JOIN user ON plant.owner=user.user_id 
+  public function find($id){
+      $sql='SELECT plant.*,user.name as owner, user.user_id as owner_id
+            FROM plant 
+            LEFT JOIN user ON plant.owner=user.user_id 
             WHERE plant.plant_id=:id LIMIT 1;';
-    }else{
-      $sql='SELECT * FROM plant WHERE plant.plant_id=:id LIMIT 1;';
-    }
     $query=$this->pdo->prepare($sql);
     $query->execute([':id'=>$id]);
-    return $query->fetchObject(__NAMESPACE__.'\Entities\Plant');
+    $plant = $query->fetchObject(__NAMESPACE__.'\Entities\Plant');
+      if ($plant){
+          $plant->setCategories($this->selectCategoriesByPlant($id));
+      }
+    return $plant;
   }
 
   /**
@@ -91,7 +92,7 @@ class PlantsModel{
     $dataArr=$plant->getDataArr();
     $paramsArr=[];
     if (@$plant->plant_id>0){
-      //updatujeme existující článek
+      //updatujeme existující kvetinu
       $sql='';
       foreach($dataArr as $key=>$value){
        if ($key=='id'){continue;}
@@ -106,10 +107,15 @@ class PlantsModel{
       $paramsArr[':id']=$plant->plant_id;
       $query=$this->pdo->prepare($sql);
       $result=$query->execute($paramsArr);
+
       $categories = $plant->getCategories();
          foreach($categories as $category){
             $this->insertIntoPlantCategoryMap($plant->plant_id, $category);
          }
+      $deleteCategories = array_diff($this->getAllCategories(), $categories);
+        foreach($deleteCategories as $categoryToDelete){
+            $this->deletePlantCategoryMap($plant->plant_id, $categoryToDelete);
+        }
     }else{
       //insert nového článku
       $sql='INSERT INTO plant (';
@@ -126,6 +132,10 @@ class PlantsModel{
       $query=$this->pdo->prepare($sql);
       $result=$query->execute($paramsArr);
       $plant->plant_id=$this->pdo->lastInsertId('plant');
+      $categories = $plant->getCategories();
+        foreach($categories as $category){
+            $this->insertIntoPlantCategoryMap($plant->plant_id, $category);
+      }
     }
     return $result;
   }
@@ -136,10 +146,36 @@ class PlantsModel{
       $query2=$this->pdo->prepare($sqlSelect);
       $query2->execute([':plant_id' => $plant, ':category_id' => $category]);
       if(empty($query2->fetchAll())) {
-          $sql = 'INSERT INTO plant_category_map (plant_id, category_id) VALUES (:plant_id, :category_id)';
+          $sql = 'INSERT INTO plant_category_map (plant_id, category_id) VALUES (:plant_id, :category_id);';
           $query = $this->pdo->prepare($sql);
-          $result = $query->execute([':plant_id' => $plant, ':category_id' => $category]);
+          $query->execute([':plant_id' => $plant, ':category_id' => $category]);
       }
+  }
+
+    public function deletePlantCategoryMap($plant, $category){
+        $sqlSelect = 'delete FROM plant_category_map WHERE plant_id = :plant_id AND category_id = :category_id;';
+        $query=$this->pdo->prepare($sqlSelect);
+        $query->execute([':plant_id' => $plant, ':category_id' => $category]);
+        $query->fetchAll();
+    }
+
+  public function selectCategoriesByPlant($plant_id){
+          $sql='SELECT category_id
+            FROM plant_category_map
+            WHERE plant_id=:id;';
+          $query=$this->pdo->prepare($sql);
+          $query->execute([':id'=>$plant_id]);
+          $result = $query->fetchAll(PDO::FETCH_COLUMN, 0);
+          return array_map('intval', $result);
+  }
+
+  private function getAllCategories(){
+      $sql='SELECT category_id
+            FROM category;';
+      $query=$this->pdo->prepare($sql);
+      $query->execute();
+      $result = $query->fetchAll(PDO::FETCH_COLUMN, 0);
+      return array_map('intval', $result);
   }
 
   /**
