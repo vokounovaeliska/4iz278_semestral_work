@@ -3,7 +3,6 @@
 namespace Blog\Model;
 use \PDO;
 use Blog\Model\Entities\Plant;
-use Nette\Security\IIdentity;
 
 /**
  * Class PlantsModel - třída modelu pro práci s články v DB
@@ -67,6 +66,7 @@ class PlantsModel{
     $plant = $query->fetchObject(__NAMESPACE__.'\Entities\Plant');
       if ($plant){
           $plant->setCategories($this->selectCategoriesByPlant($id));
+          $plant->setIsLiked($this->selectLike($id));
       }
     return $plant;
   }
@@ -80,6 +80,10 @@ class PlantsModel{
     if ($id instanceof Plant){
       $id=$id->plant_id;
     }
+    $query1=$this->pdo->prepare('DELETE FROM plant_category_map WHERE plant_id=:id;');
+    $query1->execute([':id'=>$id]);
+    $query2=$this->pdo->prepare('DELETE FROM plant_user_like_map WHERE plant_id=:id;');
+    $query2->execute([':id'=>$id]);
     $query=$this->pdo->prepare('DELETE FROM plant WHERE plant_id=:id LIMIT 1;');
     return $query->execute([':id'=>$id]);
   }
@@ -176,6 +180,26 @@ class PlantsModel{
       $query->execute();
       $result = $query->fetchAll(PDO::FETCH_COLUMN, 0);
       return array_map('intval', $result);
+  }
+
+  public function likeFlowers($plant, $user){
+      $usersLiked = $this->selectLike($plant);
+      if(in_array($user,$usersLiked)){ //like
+          $sql = 'delete from plant_user_like_map  WHERE plant_id = :plant_id and user_id = :user_id;';
+      }
+      else{ //dislike
+          $sql = 'INSERT INTO plant_user_like_map (plant_id, user_id) VALUES (:plant_id, :user_id);';
+      }
+      $query = $this->pdo->prepare($sql);
+      return $query->execute([':plant_id' => $plant, ':user_id' => $user]);
+  }
+
+  public function selectLike($plant){
+      $sqlSelect = 'SELECT user_id FROM plant_user_like_map WHERE plant_id = :plant_id;';
+      $query=$this->pdo->prepare($sqlSelect);
+      $query->execute([':plant_id' => $plant]);
+      $result = $query->fetchAll(PDO::FETCH_COLUMN, 0);
+      return $result;
   }
 
   /**

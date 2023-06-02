@@ -45,6 +45,9 @@ class PlantPresenter extends BasePresenter{
    */
   public function renderShow($id){
     $plant=$this->plantsModel->find($id);
+    $form=$this->getComponent('deleteForm');
+    $form->setDefaults(['plant_id'=>$id]);
+
     if ($plant){
       $this->template->plant=$plant;
     }else{
@@ -59,7 +62,12 @@ class PlantPresenter extends BasePresenter{
   public function actionAdd($category=null){
     if ($category && $this->categoriesModel->find($category)){
       $form=$this->getComponent('editForm');
-      $form->setDefaults(['category'=>$category]);
+      $form->setDefaults(['category'=>$category,
+          'bought_date'=> date('Y-m-d'),
+          'water_frequency' => 0,
+          'temperature'=>0
+        ]);
+
     }
   }
 
@@ -93,6 +101,36 @@ class PlantPresenter extends BasePresenter{
     ]);
   }
 
+    public function actionDelete($id){
+        if (!$plant=$this->plantsModel->find($id)){
+            throw new BadRequestException('Požadovaná květina nebyla nalezena.');
+        }
+        $form=$this->getComponent('deleteForm');
+        $form->setDefaults([
+            'plant_id'=>$plant->plant_id
+        ]);
+    }
+    public function createComponentDeleteForm(){
+        $form = new Form();
+        $form->addHidden('plant_id');
+        $form->addSubmit('delete', 'smazat rostlinu')
+            ->onClick[]=function(SubmitButton $button){
+                $data=$button->form->getValues(true);
+                if ($data['plant_id']>0){
+                    $plant=$this->plantsModel->find($data['plant_id']);
+                    $result=$this->plantsModel->delete($plant->plant_id);
+                    if ($result){
+                        $this->redirect('Homepage:default');
+                        $this->flashMessage('Květina byla smazána');
+                    }else{
+                        $this->flashMessage('Květinu se nepodařilo smazat.','error');
+                    }
+                }
+        };
+        return $form;
+    }
+
+
   /**
    * Funkce připravující formulář pro zadání nového/úpravu existujícího článku
    * @return Form
@@ -112,15 +150,18 @@ class PlantPresenter extends BasePresenter{
         ->setType('date')
         ->setRequired('Je nutné zadat datum')
         ->setHtmlAttribute('class','wysiwyg');
-    $form->addInteger('water_frequency', 'Jak často zalévat (po koloka dnech)')
-          ->setHtmlAttribute('class','wysiwyg');
-    $form->addInteger('temperature', 'Twwplota')
-          ->setHtmlAttribute('class','wysiwyg');
-    $svetlo=[
-      1 => 'direct',
-      2 => 'indirect'];
-    $form->addSelect('lighting', 'Svetlo', $svetlo)
-      ->setHtmlAttribute('class','wysiwyg');
+    $form->addInteger('water_frequency', 'Jak často zalévat (po kolika dnech)')
+          ->setHtmlAttribute('class','wysiwyg')
+          ->setRequired('Je nutno zadat po kolika dnech je třeba zalévat.');
+    $form->addInteger('temperature', 'Teplota')
+          ->setHtmlAttribute('class','wysiwyg')
+          ->setRequired('Zadejte teplotu, kteoru má rostlina nejraději');
+    $lighting=[
+      1 => 'Slunné',
+      2 => 'Stinné'];
+    $form->addSelect('lighting', 'Světelné podmínky', $lighting)
+      ->setHtmlAttribute('class','wysiwyg')
+      ->setRequired('Zadejte zda má rostlina raději slunné nebo stinné místo');
       $origin = [
           1 => 'Europe',
           2 => 'Asia',
@@ -138,11 +179,10 @@ class PlantPresenter extends BasePresenter{
     $categories=$this->categoriesModel->findAll();
     $categoriesArr=[];
     foreach($categories as $category){
-        //if($category->category_id!=5) {
             $categoriesArr[$category->category_id] = $category->name;
-        //}
     }
-    $form->addCheckboxList('category','Kategorie',$categoriesArr);
+    $form->addCheckboxList('category','Kategorie',$categoriesArr)
+        ->setDisabled([5], true);
     $form->addUpload('image', 'Obrázek')
         ->setHtmlAttribute('accept', '.jpg,.jpeg,.png');
     $form->addSubmit('save','uložit')
@@ -153,7 +193,7 @@ class PlantPresenter extends BasePresenter{
         //aktualizujeme existující článek
         $plant=$this->plantsModel->find($data['plant_id']);
       }else{
-        //zobrazíme nový článek
+        //zobrazíme novou květinu
         $plant=new Plant();
       }
         $plant->name=$data['name'];
@@ -181,9 +221,9 @@ class PlantPresenter extends BasePresenter{
         $result=$this->plantsModel->save($plant);
 
       if ($result){
-        $this->flashMessage('Článek byl úspěšně uložen.');
+        $this->flashMessage('Květina byla úspěšně uložena.');
       }else{
-        $this->flashMessage('Článek se nepodařilo uložit.','error');
+        $this->flashMessage('Květinu se nepodařilo uložit.','error');
       }
       if ($plant->plant_id>0){
         $this->redirect('Plant:show',['id'=>$plant->plant_id]);
@@ -197,7 +237,7 @@ class PlantPresenter extends BasePresenter{
       //funkce po kliknutí na tlačítko pro zrušení
       $data=$button->form->getValues(true);
       if ($data['plant_id']>0){
-        $this->redirect('Plant:show',['id'=>$data['plant_id']]);//přesměrování na zobrazení daného článku
+        $this->redirect('Plant:show',['id'=>$data['plant_id']]);//přesměrování na zobrazení dané rostliny
       }elseif($data['category']>0){
         $this->redirect('Plant:list',['category'=>$data['category']]);//přesměrování na zobrazení kategorie
       }else{
@@ -206,8 +246,22 @@ class PlantPresenter extends BasePresenter{
     };
     return $form;
   }
-  
-  
+
+    public function actionLike($id){
+        if (!$plant=$this->plantsModel->find($id)){
+            throw new BadRequestException('Požadovaná květina nebyla nalezena.');
+        }
+        $result=$this->plantsModel->likeFlowers($plant->plant_id, $this->getUser()->getId());
+        if ($result){
+            //$isLiked = $this->plantsModel->selectLike($plant->plant_id, $this->getUser()->getId());
+           // $plant->setIsLiked($isLiked);
+            $likeLabel = $plant->getIsLikedByUser($this->getUser()->getId()) ? 'Uniked' : 'Liked';
+            $this->flashMessage($likeLabel);
+
+            $this->redirect('Plant:list',['category'=>6]);//přesměrování na zobrazení kategorie
+        }
+    }
+
   #region injections - metody zajišťující automatické načtení potřebných služeb
   /**
    * Funkce pro automatické vložení (injection) požadované služby, která je definována v config.neon

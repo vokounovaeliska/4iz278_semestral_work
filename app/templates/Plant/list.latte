@@ -23,8 +23,8 @@
                    <dd>{$plant->getWaterFrequency()}</dd>
                    <dt>Vhodná teplota</dt>
                    <dd>{$plant->getTemperature()}</dd>
-                   <dt>Světlo</dt>
-                   <dd>{$plant->getLighting()}</dd>
+                   <dt>Světelné podmínky</dt>
+                   <dd>{$plant->getLighting() == 'direct'? 'slunné' : 'stinné'}</dd>
                    <dt>Má ráda rosení</dt>
                    <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
                    <dt>Původ</dt>
@@ -62,8 +62,8 @@
                        <dd>{$plant->getWaterFrequency()}</dd>
                        <dt>Vhodná teplota</dt>
                        <dd>{$plant->getTemperature()}</dd>
-                       <dt>Světlo</dt>
-                       <dd>{$plant->getLighting()}</dd>
+                       <dt>Světelné podmínky</dt>
+                       <dd>{$plant->getLighting() == 'direct'? 'slunné' : 'stinné'}</dd>
                        <dt>Má ráda rosení</dt>
                        <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
                        <dt>Původ</dt>
@@ -83,7 +83,7 @@
              {/foreach}
     {/if}
 
-  {if !empty($plants) && ($category->category_id!=5 || $category->category_id!=6)}
+  {if !empty($plants) && $category->category_id!=5  && $category->category_id!=6}
     {foreach $plants as $plant}
         <hr>
       <plant>
@@ -101,8 +101,8 @@
               <dd>{$plant->getWaterFrequency()}</dd>
               <dt>Vhodná teplota</dt>
               <dd>{$plant->getTemperature()}</dd>
-              <dt>Světlo</dt>
-              <dd>{$plant->getLighting()}</dd>
+              <dt>Světelné podmínky</dt>
+              <dd>{$plant->getLighting() == 'direct'? 'slunné' : 'stinné'}</dd>
               <dt>Má ráda rosení</dt>
               <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
               <dt>Původ</dt>

@@ -19,8 +19,8 @@
       <dd>{$plant->getWaterFrequency()}</dd>
       <dt>Vhodná teplota</dt>
       <dd>{$plant->getTemperature()}</dd>
-      <dt>Světlo</dt>
-      <dd>{$plant->getLighting()}</dd>
+      <dt>Světelné podmínky</dt>
+      <dd>{$plant->getLighting() == 'direct'? 'slunné' : 'stinné'}</dd>
       <dt>Má ráda rosení</dt>
       <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
       <dt>Původ</dt>
@@ -28,7 +28,12 @@
     </dl>
 
     <div>
-        {var $imageData = $plant->getImage()}
+        {if $user->isAllowed('plant','like') }
+            <a href="{link Plant:like id=>$plant->plant_id}">{$plant->getIsLikedByUser($user->identity->id)? 'Unlike' : 'Like'}</a>
+            <br>
+        {/if}
+
+              {var $imageData = $plant->getImage()}
         {var $imageFormat = $plant->getImageType()}
         {if $imageData !== null}
           {var $image = Nette\Utils\Image::fromString(base64_decode($imageData))}
@@ -40,7 +45,12 @@
         {else}
           Fotka není k dispozici.
         {/if}
+        {if $user->isAllowed('plant','delete') && $plant->owner_id==$user->identity->id }
+          {control deleteForm}
+        {/if}
     </div>
 
-    {$plant->getLastModified()|noescape}
+
+
+     {$plant->getLastModified()}
   </plant>

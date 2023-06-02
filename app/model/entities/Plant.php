@@ -23,6 +23,7 @@ use Nette\Utils\DateTime;
  * @property string $image
  * @property string $image_type
  * @property int[] $categories
+ * @property int[] $isLiked
  */
 class Plant
 {
@@ -146,6 +147,8 @@ class Plant
     private  $image_type;
     private $categories;
 
+    private $isLiked;
+
 
     public function getBoughtDate()
     {
@@ -192,12 +195,6 @@ class Plant
 
     public function getLighting()
     {
-/*        if($this->lighting == 'direct'){
-            return $this->lighting=1;
-        }
-        if($this->lighting == 'indirect'){
-            return $this->lighting=2;
-        }*/
         return $this->lighting;
     }
 
@@ -318,5 +315,30 @@ class Plant
     {
         $this->image_type = $image_type;
     }
+
+
+    public function getIsLiked()
+    {
+        return $this->isLiked;
+    }
+
+    /**
+     * @param mixed $isLiked
+     */
+    public function setIsLiked(array $isLiked): void
+    {
+        $this->isLiked = $isLiked;
+    }
+
+    public function getIsLikedByUser($user_id)
+    {
+        if(in_array($user_id,$this->getIsLiked()))
+        {
+            return true;
+        }
+        return false;
+    }
+
+
 
 }
