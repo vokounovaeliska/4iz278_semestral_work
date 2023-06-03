@@ -8,8 +8,10 @@
 CREATE TABLE `user` (
                         `user_id` int  NOT NULL AUTO_INCREMENT ,
                         `name` varchar(200) COLLATE utf8_czech_ci NOT NULL ,
+                         `password` VARCHAR(201) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL DEFAULT '',
                          `role` varchar(20) COLLATE utf8_czech_ci NOT NULL,
                          `active` tinyint(1) NOT NULL,
+                         `facebook_id` varchar(50) COLLATE utf8_czech_ci NULL DEFAULT ''
                         PRIMARY KEY (
                                      `user_id`
                             )
