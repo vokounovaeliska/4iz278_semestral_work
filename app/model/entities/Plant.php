@@ -22,8 +22,10 @@ use Nette\Utils\DateTime;
  * @property datetime $last_modified
  * @property string $image
  * @property string $image_type
+ * @property string $image_path
  * @property int[] $categories
  * @property int[] $isLiked
+
  */
 class Plant
 {
@@ -48,7 +50,8 @@ class Plant
             'humidity' => $this->isHumidity(),
             'last_modified' => $this->getLastModified(),
             'image' => $this->getImage(),
-            'image_type' => $this->getImageType()
+            'image_type' => $this->getImageType(),
+            'image_path' => $this->getImagePath()
         ];
         if (!empty($this->plant_id)) {
             $result['plant_id'] = $this->plant_id;
@@ -148,6 +151,23 @@ class Plant
     private $categories;
 
     private $isLiked;
+    private $image_path;
+
+    /**
+     * @return string
+     */
+    public function getImagePath()
+    {
+        return $this->image_path;
+    }
+
+    /**
+     * @param string $image_path
+     */
+    public function setImagePath(string $image_path): void
+    {
+        $this->image_path = $image_path;
+    }
 
 
     public function getBoughtDate()
@@ -238,6 +258,9 @@ class Plant
                 if($this->origin == 'Australia'){
                     return 5;
                 }
+                 if($this->origin == 'Africa'){
+                  return 6;
+              }
 
         return $this->origin;
     }
@@ -338,6 +361,8 @@ class Plant
         }
         return false;
     }
+
+
 
 
 

@@ -25,6 +25,7 @@
       <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
       <dt>Původ</dt>
       <dd>{$plant->getOrigin()}</dd>
+
     </dl>
 
     <div>
@@ -32,8 +33,8 @@
             <a href="{link Plant:like id=>$plant->plant_id}">{$plant->getIsLikedByUser($user->identity->id)? 'Unlike' : 'Like'}</a>
             <br>
         {/if}
-
-              {var $imageData = $plant->getImage()}
+          <p>Počet lajků: {if $plant->likesCount} {$plant->likesCount} {else} 0 {/if}</p>
+ {*       {var $imageData = $plant->getImage()}
         {var $imageFormat = $plant->getImageType()}
         {if $imageData !== null}
           {var $image = Nette\Utils\Image::fromString(base64_decode($imageData))}
@@ -44,13 +45,17 @@
           {/if}
         {else}
           Fotka není k dispozici.
+        {/if}*}
+        {if $plant->getImagePath()}
+          <img width="200" src="{$plant->getImagePath()}" alt="Obrázek rostliny">
+        {else}
+          Fotka není k dispozici.
         {/if}
-        {if $user->isAllowed('plant','delete') && $plant->owner_id==$user->identity->id }
-          {control deleteForm}
-        {/if}
+
     </div>
 
-
-
+       {if $user->isAllowed('plant','delete') && $plant->owner_id==$user->identity->id }
+          {control deleteForm}
+      {/if}
      {$plant->getLastModified()}
   </plant>

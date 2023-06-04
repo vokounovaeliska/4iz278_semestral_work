@@ -9,7 +9,6 @@ $configurator->setDebugMode(true);
 $configurator->enableDebugger(__DIR__ . '/../log');
 
 $configurator->setTempDirectory(__DIR__ . '/../temp');
-
 $configurator->createRobotLoader()
 	->addDirectory(__DIR__)
 	->register();

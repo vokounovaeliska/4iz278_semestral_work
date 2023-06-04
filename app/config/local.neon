@@ -8,4 +8,7 @@ parameters:
         connectionString: 'mysql:host=127.0.0.1;dbname=voke01;charset=utf8'
         username: voke01
         password: Lu9Ahgohf9boKaeW4t
-
+    fb:
+         app_id: '982887502739031'
+         app_secret: '7319ede81b58239a71a7660c3711acce'
+         default_graph_version: 'v2.10'

@@ -7,6 +7,8 @@ use Blog\Model\UsersModel;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
+use \JanuSoftware\Facebook\Facebook;
+use Nette\Security\Identity;
 
 /**
  * Class UserPresenter
@@ -113,10 +115,77 @@ class UserPresenter extends BasePresenter{
     return $form;
   }
 
+    public function renderLogin(){
+        $permissions = ['email'];
+        $redirectURI = 'https://esotemp.vse.cz/~voke01/final/user/facebookcallback';
+        $loginUrl = $this->helper->getLoginUrl($redirectURI, $permissions);
+        $this->template->loginUrl = $loginUrl;
+    }
+
+    public function actionFacebookCallback()
+    {
+        try {
+            $accessToken = $this->helper->getAccessToken();
+        } catch (Exception $e) {
+            // Handle any exceptions that occur during the login process
+            $this->flashMessage('Facebook login failed.', 'error');
+        }
+        if(!$accessToken) {
+            $this->flashMessage('Facebook login failed.', 'error');
+        }
+
+        $oAuth2Client = $this->fb->getOAuth2Client();
+        $accessTokenMetadata = $oAuth2Client->debugToken($accessToken);
+        $fbUserId = $accessTokenMetadata->getUserId();
+        $response = $this->fb->get('/me?fields=name,email', $accessToken);
+        $graphUser = $response->getGraphNode();
+        $fbUserMail = $graphUser->getField('email');
+        $fbUserName = $graphUser->getField('name');
+        $fbUserId = $graphUser->getField('id');
+
+        $user = $this->usersModel->findByFacebookId($fbUserId);
+
+        if(!$user) {  //nenasli jsme, tak hledame mail
+            $user = $this->usersModel->findByEmail($fbUserMail);
+            if($user) {
+                $this->usersModel->updateUserAddFacebook($fbUserId, $fbUserMail);
+            }
+            else {  //zalozime
+                $newUser=new User();
+                $newUser->active=true;
+                $newUser->password='';
+                $newUser->name=$fbUserName;
+                $newUser->email=$fbUserMail;
+                $newUser->role=User::DEFAULT_REGISTERED_ROLE;
+                $newUser->facebook_id=$fbUserId;
+                if ($this->usersModel->save($newUser)){
+                    $this->flashMessage('Registrace byla úspěšně dokončena.');
+                    $this->usersModel->sendRegistrationMail($newUser);
+                    $user = $newUser;
+                }
+            }
+
+            }
+
+        if($user) {
+            //prihlasime
+            $this->user->login([0 => $user->facebook_id, ]);
+            $this->flashMessage('Úspěšné přihlášení přes facebook');
+            $this->redirect('Homepage:default');
+        }
+    }
+
+    private $fb;
+    private $helper;
+
 
   #region injections
   public function injectUsersModel(UsersModel $usersModel){
     $this->usersModel=$usersModel;
+    $this->fb=$usersModel->fb;
+    $this->helper = $this->fb->getRedirectLoginHelper();
   }
   #endregion injections
+
+
 }

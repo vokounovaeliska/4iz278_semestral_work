@@ -154,6 +154,7 @@ class User
 	}
 
 
+
 	/**
 	 * Is this user authenticated?
 	 */

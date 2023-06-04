@@ -19,33 +19,43 @@ class PlantsModel{
    */
   public function findAll($category=null){
     if ($category>0){
-      $query=$this->pdo->prepare('SELECT plant.*,user.name as owner, user.user_id as owner_id FROM plant
+      $query=$this->pdo->prepare('SELECT plant.*,user.name as owner, user.user_id as owner_id,
+                                         (select count(plant.plant_id) from plant_user_like_map where plant_user_like_map.plant_id = plant.plant_id) as likesCount
+                                        FROM plant
                                         left join plant_category_map  on plant.plant_id = plant_category_map.plant_id
                                         LEFT JOIN user ON plant.owner=user.user_id
-                                        where plant_category_map.category_id=:category;');
+                                        where plant_category_map.category_id=:category
+                                        AND plant.plant_id IS NOT NULL
+                                        GROUP BY plant.plant_id
+                                        order by likesCount desc;');
 
       $query->execute([':category'=>$category]);
-    }else{
-      $query=$this->pdo->prepare('SELECT * FROM plant');
-      $query->execute();
     }
     return $query->fetchAll(PDO::FETCH_CLASS,__NAMESPACE__.'\Entities\Plant');
   }
 
     public function findMine($user){
-      $query=$this->pdo->prepare('SELECT plant.*,user.name as owner, user.user_id as owner_id 
+      $query=$this->pdo->prepare('SELECT plant.*,user.name as owner, user.user_id as owner_id,
+       (select count(plant.plant_id) from plant_user_like_map where plant_user_like_map.plant_id = plant.plant_id) as likesCount
                                         FROM plant 
                                         LEFT JOIN user ON plant.owner=user.user_id
-                                        where owner=:owner;');
+                                        where owner=:owner
+                                        AND plant.plant_id IS NOT NULL
+                                        GROUP BY plant.plant_id
+                                        order by likesCount desc;');
       $query->execute([':owner'=>$user]);
       return $query->fetchAll(PDO::FETCH_CLASS,__NAMESPACE__.'\Entities\Plant');
     }
 
     public function findLikedFlowers($user){
-        $query=$this->pdo->prepare('SELECT plant.*,user.name as owner, user.user_id as owner_id FROM plant 
+        $query=$this->pdo->prepare('SELECT plant.*,user.name as owner, user.user_id as owner_id,
+        (select count(plant.plant_id) from plant_user_like_map where plant_user_like_map.plant_id = plant.plant_id) as likesCount
+                                        FROM plant 
                                         LEFT JOIN user ON plant.owner=user.user_id
                                         left join plant_user_like_map on plant.plant_id = plant_user_like_map.plant_id
-                                        where plant_user_like_map.user_id=:user;');
+                                        where plant_user_like_map.user_id=:user
+                                        AND plant.plant_id IS NOT NULL
+                                        GROUP BY plant.plant_id;');
         $query->execute([':user'=>$user]);
         return $query->fetchAll(PDO::FETCH_CLASS,__NAMESPACE__.'\Entities\Plant');
     }
@@ -57,9 +67,10 @@ class PlantsModel{
    * @return Plant
    */
   public function find($id){
-      $sql='SELECT plant.*,user.name as owner, user.user_id as owner_id
+      $sql='SELECT plant.*,user.name as owner, user.user_id as owner_id,  COUNT(plant_user_like_map.plant_user_like_map_id) AS likesCount
             FROM plant 
             LEFT JOIN user ON plant.owner=user.user_id 
+            LEFT JOIN plant_user_like_map ON plant.plant_id = plant_user_like_map.plant_id
             WHERE plant.plant_id=:id LIMIT 1;';
     $query=$this->pdo->prepare($sql);
     $query->execute([':id'=>$id]);

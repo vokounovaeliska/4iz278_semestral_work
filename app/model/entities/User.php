@@ -11,8 +11,10 @@ namespace Blog\Model\Entities;
  * @property string $password
  * @property string $role
  * @property bool $active
+ * @property string $facebook_id
  */
-class User{
+class User
+{
 
     const DEFAULT_REGISTERED_ROLE='registered';
 
@@ -56,11 +58,12 @@ class User{
       'password'=>@$this->password,
       'role'=>@$this->role,
       'active'=>@$this->active,
+      'facebook_id'=>@$this->facebook_id,
     ];
     if (!empty($this->user_id)){
       $result['user_id']=$this->user_id;
     }
     return $result;
   }
-  
+
 }

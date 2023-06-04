@@ -11,7 +11,7 @@ use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Http\FileUpload;
 use Nette\Utils\DateTime;
-use Intervention\Image\ImageManagerStatic as Image;
+use Nette\Utils\Image;
 
 
 /**
@@ -93,8 +93,6 @@ class PlantPresenter extends BasePresenter{
       'lighting' => $plant->getLightingValue(),
       'origin' => $plant->getOriginValue(),
       'humidity' => $plant->isHumidity(),
-      'last_modified' => $plant->getLastModified(),
-      'image' => $plant->getImage(),
       'categories' => $plant->getCategories(),
       'last_modified' => new DateTime(),
       'category' => $this->plantsModel->selectCategoriesByPlant($plant->plant_id)
@@ -152,9 +150,13 @@ class PlantPresenter extends BasePresenter{
         ->setHtmlAttribute('class','wysiwyg');
     $form->addInteger('water_frequency', 'Jak často zalévat (po kolika dnech)')
           ->setHtmlAttribute('class','wysiwyg')
+          ->addRule(Form::INTEGER, 'Zadejte platné celé číslo.')
+          ->addRule(Form::MIN, 'Číslo musí být nezáporné.', 0)
           ->setRequired('Je nutno zadat po kolika dnech je třeba zalévat.');
     $form->addInteger('temperature', 'Teplota')
           ->setHtmlAttribute('class','wysiwyg')
+          ->addRule(Form::INTEGER, 'Zadejte platné celé číslo.')
+          ->addRule(Form::MIN, 'Číslo musí být nezáporné.', 0)
           ->setRequired('Zadejte teplotu, kteoru má rostlina nejraději');
     $lighting=[
       1 => 'Slunné',
@@ -167,7 +169,8 @@ class PlantPresenter extends BasePresenter{
           2 => 'Asia',
           3 => 'South America',
           4 => 'North America',
-          5 => 'Australia'
+          5 => 'Australia',
+          6 => 'Africa'
       ];
       $form->addSelect('origin', 'Země původu', $origin)
         ->setHtmlAttribute('class','wysiwyg');
@@ -179,11 +182,15 @@ class PlantPresenter extends BasePresenter{
     $categories=$this->categoriesModel->findAll();
     $categoriesArr=[];
     foreach($categories as $category){
+        if($category->category_id != 6) {
             $categoriesArr[$category->category_id] = $category->name;
+        }
     }
     $form->addCheckboxList('category','Kategorie',$categoriesArr)
         ->setDisabled([5], true);
     $form->addUpload('image', 'Obrázek')
+        ->addRule(Form::IMAGE, 'Vložte obrázek')
+        ->addRule(Form::MIME_TYPE, 'Vložte obrázek ve formátu JPG, JPEG nebo PNG.', ['image/jpeg', 'image/png'])
         ->setHtmlAttribute('accept', '.jpg,.jpeg,.png');
     $form->addSubmit('save','uložit')
       ->onClick[]=function(SubmitButton $button){
@@ -208,11 +215,30 @@ class PlantPresenter extends BasePresenter{
           $plant->setLastModified(new DateTime($button->form->getValues()->last_modified));
           $file = $button->form->getValues()->image;
             if ($file->isOk()) {
+                //Ukladani obrazku jako blob
             $imageContents = base64_encode($file->getContents());
             $plant->setImage($imageContents);
             $imageType = $file->getContentType();
             $plant->setImageType($imageType);
-        }
+
+            //ulozeni obrazku a jeho cesty
+            $destinationFolder =  __DIR__ . '/../../www/img/';
+            $originalFilename = $file->getName();
+
+            $currentDateTime = new \DateTime();
+            $timestamp = $currentDateTime->format('Y-m-d-H-i');
+            $newFilename = $timestamp . '-' . $originalFilename;
+
+            $sourcePath = $file->getTemporaryFile();
+            $destinationPath = $destinationFolder . $newFilename;
+
+            if (copy($sourcePath, $destinationPath)) {
+               $permissions = 0777;
+               chmod($destinationPath, $permissions);
+               $plant->setImagePath('/~voke01/final/www/img/' . $newFilename);
+            }
+
+            }
           $selectedCategories = $data['category'];
           array_push($selectedCategories, 5);
           $plant->setCategories($selectedCategories);
@@ -232,7 +258,6 @@ class PlantPresenter extends BasePresenter{
       }
     };
     $form->addSubmit('storno','zrušit')
-      ->setValidationScope([])
       ->onClick[]=function(SubmitButton $button){
       //funkce po kliknutí na tlačítko pro zrušení
       $data=$button->form->getValues(true);
@@ -258,7 +283,7 @@ class PlantPresenter extends BasePresenter{
             $likeLabel = $plant->getIsLikedByUser($this->getUser()->getId()) ? 'Uniked' : 'Liked';
             $this->flashMessage($likeLabel);
 
-            $this->redirect('Plant:list',['category'=>6]);//přesměrování na zobrazení kategorie
+             $this->redirect('Plant:show',['id'=>$id]);//přesměrování na zobrazení kategorie
         }
     }
 

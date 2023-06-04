@@ -24,6 +24,15 @@
 		"nette/utils": "^3.2",
 		"latte/latte": "^2.11",
 		"tracy/tracy": "^2.9",
-		"ext-pdo": "*"
+		"ext-pdo": "*",
+		"janu-software/facebook-php-sdk": "^0.2.0",
+		"symfony/http-client": "^6.0",
+		"nyholm/psr7": "^1.8",
+		"psr/http-factory": "^1.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"php-http/discovery": true
+		}
 	}
 }

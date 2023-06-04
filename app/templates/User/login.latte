@@ -4,3 +4,8 @@
   {control loginForm}
 
   <p>Nemáte zatím svůj účet? <a href="{link User:register}">Zaregistrujte se...</a></p>
+
+
+  {if !$user->isLoggedIn()}
+  <p><a href="{$loginUrl}">Přihlásit se pomocí Facebooku</a></p>
+  {/if}

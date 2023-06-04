@@ -10,16 +10,34 @@
     {foreach $plantsByOwner as $plant}
       <plant>
         <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
-        {$plant->latin_name}
-          <br />
-             {var $imageData = $plant->getImage()}
-                 {var $imageFormat = $plant->getImageType()}
-        {if $imageData !== null}
-          {var $image = Nette\Utils\Image::fromString(base64_decode($imageData))}
-          {if $image !== null}
-            <img width="200" src="data:{$imageFormat};base64,{$imageData}" alt="Obrázek rostliny">
+        <dl class="articleInfo">
+          <dt>Majitel:</dt>
+          <dd><a href="{link Plant:listByOwner owner=>$plant->owner_id}">{$plant->owner}</a></dd>
+          <dt>Latinský název:</dt>
+          <dd>{$plant->latin_name}</dd>
+          <dt>Popis:</dt>
+          <dd>{$plant->description}</dd>
+          <dt>Datum pořízení/nákupu:</dt>
+          <dd>{$plant->getBoughtDate()}</dd>
+          <dt>Frekvence zalévání (po kolika dnech):</dt>
+          <dd>{$plant->getWaterFrequency()}</dd>
+          <dt>Vhodná teplota</dt>
+          <dd>{$plant->getTemperature()}</dd>
+          <dt>Světelné podmínky</dt>
+          <dd>{$plant->getLighting() == 'direct'? 'slunné' : 'stinné'}</dd>
+          <dt>Má ráda rosení</dt>
+          <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
+          <dt>Původ</dt>
+          <dd>{$plant->getOrigin()}</dd>
+        </dl>
+        <div>
+          <p>Počet lajků: {if $plant->likesCount} {$plant->likesCount} {else} 0 {/if}</p>
+          {if $plant->getImagePath()}
+            <img width="200" src="{$plant->getImagePath()}" alt="Obrázek rostliny">
+          {else}
+            Fotka není k dispozici.
           {/if}
-        {/if}
+        </div>
       </plant>
     {/foreach}
   {else}

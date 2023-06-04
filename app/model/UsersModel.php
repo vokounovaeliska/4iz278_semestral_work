@@ -8,15 +8,19 @@ use Nette\Security\AuthenticationException;
 use Nette\Security\Identity;
 use Nette\Security\IIdentity;
 use \PDO;
+use \JanuSoftware\Facebook\Facebook;
 use Blog\Model\Entities\Plant;
+use Nette\Security\User as SecurityUser;
+
 
 /**
  * Class UsersModel - třída pro práci s uživateli
  * @package Blog\Model
  */
 class UsersModel implements \Nette\Security\IAuthenticator{
-  /** @var PDO $pdo */
   private $pdo;
+  public $fb;
+
 
   /**
    * Funkce pro nalezení všech uživatelů
@@ -38,6 +42,21 @@ class UsersModel implements \Nette\Security\IAuthenticator{
     $query->execute([':user_id'=>$user_id]);
     return $query->fetchObject(__NAMESPACE__.'\Entities\User');
   }
+
+    public function findByFacebookId($facebook_id){
+        $query=$this->pdo->prepare('SELECT * FROM user 
+         WHERE facebook_id=:facebook_id LIMIT 1;');
+        $query->execute([':facebook_id'=>$facebook_id]);
+        return $query->fetchObject(__NAMESPACE__.'\Entities\User');
+    }
+
+    public function updateUserAddFacebook($facebook_id, $email){
+        $query=$this->pdo->prepare('SELECT * FROM user 
+         WHERE email=:email LIMIT 1;');
+        $sql = 'UPDATE user SET facebook_id = :facebook_id WHERE email = :email;';
+        $query = $this->pdo->prepare($sql);
+        return $query->execute([':facebook_id' => $facebook_id, ':email' => $email]);
+}
 
   /**
    * Funkce pro nalezení uživatele podle e-mailu
@@ -105,10 +124,16 @@ class UsersModel implements \Nette\Security\IAuthenticator{
    */
   public function sendRegistrationMail(User $user){
     $mail=new Message();
-    $mail->setFrom('voke01@vse.cz');//TODO tady by měla bát nějaká rozumná adresa
+    $mail->setFrom('voke01@vse.cz');
     $mail->addTo($user->email);
-    $mail->setSubject('Registrace na webu...');
-    $mail->setHtmlBody('<p>Byli jste úspěšně zaregistrováni, pro přihlášení využijte e-mail <strong>'.$user->email.'</strong></p>');
+    $mail->setSubject('Registrace na webu Flower Tracker');
+    $mail->setHtmlBody('<p>Děkujeme za registraci na našem webu Flower Tracker - platformě pro správu kytiček!<p/>
+     <p>Pro přihlášení využijte e-mail.<strong>'.$user->email.'</strong></p>
+    <p>Flower Tracker vám umožňuje jednoduše spravovat vaše kytičky. Přihlaste se na web a využívejte následující funkce:
+    <ul>
+    <li> Přidávání nových kytiček do vaší kolekce. </li>
+    <li>Zobrazení detailů o každé kytičce, včetně jména, druhu a péče potřebné pro její udržení.</li>
+    <li>Sledování data zálivky a hnojení, abyste měli své kytičky vždy zdravé a krásné.</li></ul></p>');
     $mailer = new SendmailMailer();
     $mailer->send($mail);
   }
@@ -121,6 +146,11 @@ class UsersModel implements \Nette\Security\IAuthenticator{
    * @throws AuthenticationException
    */
   function authenticate(array $credentials){
+      \Tracy\OutputDebugger::enable();
+      if(count($credentials) == 1){
+          return $this->authenticateViaFacebook($credentials);
+      }
+
     list($username,$password)=$credentials;//TODO pamatujete si tuhle konstrukci?
     $user=$this->findByEmail($username);
     if (!$user){
@@ -135,14 +165,26 @@ class UsersModel implements \Nette\Security\IAuthenticator{
     return new Identity($user->user_id,[$user->role],['name'=>$user->name,'email'=>$user->email]);
   }
 
+    function authenticateViaFacebook(array $credentials){
 
-  /**
-   * PlantsModel constructor
-   * @param PDO $pdo
-   */
-  public function __construct(\PDO $pdo){
-    $this->pdo=$pdo;
+         \Tracy\OutputDebugger::enable();
+
+        $user = $this->findByFacebookId($credentials[0][0]);
+
+        if (!$user){
+             throw new AuthenticationException('Uživatelský účet nenalezen.',self::IDENTITY_NOT_FOUND);
+        }
+        if (!$user->active){
+            throw new AuthenticationException('Uživatelský účet není aktivní.',self::NOT_APPROVED);
+        }
+        return new Identity($user->user_id,[$user->role],['name'=>$user->name,'email'=>$user->email]);
+    }
+
+  public function __construct(\PDO $pdo, Facebook $fb){
+   // $this->pdo=$pdo;
+     // parent::__construct();
+      $this->pdo = $pdo;
+      $this->fb = $fb;
   }
-
 
 }
