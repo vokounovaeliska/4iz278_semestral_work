@@ -31,7 +31,8 @@ CREATE TABLE `plant` (
                          `humidity` boolean  NULL ,
                          `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                           `image` longblob null,                       
-                          `image_type` nvarchar(30) null
+                          `image_type` nvarchar(30) null,
+                          `image_path` nvarchar(300) null
                          PRIMARY KEY (
                                       `plant_id`
                              )
@@ -104,12 +105,15 @@ INSERT INTO `resources` (`role`, `resource`, `action`) VALUES
 ('admin', 'category', ''),
 ('admin', 'user', ''),
 ('editor', 'plant', ''),
-('editor', 'comment', ''),
+('editor', 'plant', 'like'),
 ('guest', 'plant', 'list'),
 ('guest', 'plant', 'show'),
+('guest', 'plant', 'delete'),
 ('guest', 'homepage', ''),
 ('guest', 'user', 'login'),
 ('guest', 'user', 'register'),
+('guest', 'user', 'facebook'),
+('guest', 'user', 'facebookcallback'),
 ('registered', 'comment', 'new'),
 ('registered', 'user', 'logout');
 
