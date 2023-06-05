@@ -1,0 +1,302 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.0
+-- https://www.phpmyadmin.net/
+--
+-- Počítač: localhost:3306
+-- Vytvořeno: Úte 30. kvě 2023, 21:13
+-- Verze serveru: 10.5.19-MariaDB-0+deb11u2
+-- Verze PHP: 8.1.18
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Databáze: `voke01`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `category`
+--
+
+CREATE TABLE `category` (
+  `category_id` int(11) NOT NULL,
+  `name` varchar(200) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_czech_ci;
+
+--
+-- Vypisuji data pro tabulku `category`
+--
+
+INSERT INTO `category` (`category_id`, `name`) VALUES
+(1, 'Pro začátečníky'),
+(2, 'Pro pokročilé'),
+(3, 'K mazlíčkům'),
+(4, 'Čističky vzduchu'),
+(5, 'Moje květinky'),
+(6, 'Oblíbené květiny');
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `plant`
+--
+
+CREATE TABLE `plant` (
+  `plant_id` int(11) NOT NULL,
+  `name` varchar(200) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL,
+  `latin_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_czech_ci DEFAULT NULL,
+  `description` text CHARACTER SET utf8 COLLATE utf8_czech_ci DEFAULT NULL,
+  `owner` int(11) NOT NULL,
+  `bought_date` date DEFAULT NULL,
+  `water_frequency` int(11) DEFAULT NULL,
+  `temperature` int(11) DEFAULT NULL,
+  `lighting` enum('direct','indirect') DEFAULT NULL,
+  `origin` enum('Europe','Asia','South America','North America','Australia') DEFAULT NULL,
+  `humidity` tinyint(1) DEFAULT NULL,
+  `last_modified` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `image` longblob DEFAULT NULL,
+  `image_type` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_czech_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `plant_category_map`
+--
+
+CREATE TABLE `plant_category_map` (
+  `plant_category_map_id` int(11) NOT NULL,
+  `plant_id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_czech_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `plant_user_like_map`
+--
+
+CREATE TABLE `plant_user_like_map` (
+  `plant_user_like_map_id` int(11) NOT NULL,
+  `plant_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_czech_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `resources`
+--
+
+CREATE TABLE `resources` (
+  `role` varchar(20) NOT NULL,
+  `resource` varchar(100) NOT NULL,
+  `action` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující přehled oprávnění přístupu ke zdrojům';
+
+--
+-- Vypisuji data pro tabulku `resources`
+--
+
+INSERT INTO `resources` (`role`, `resource`, `action`) VALUES
+('admin', 'category', ''),
+('admin', 'user', ''),
+('guest', 'homepage', ''),
+('guest', 'plant', 'list'),
+('guest', 'plant', 'listByOwner'),
+('guest', 'plant', 'show'),
+('guest', 'user', 'login'),
+('guest', 'user', 'register'),
+('registered', 'comment', 'new'),
+('registered', 'plant', ''),
+('registered', 'user', 'logout');
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `roles`
+--
+
+CREATE TABLE `roles` (
+  `id` varchar(20) NOT NULL,
+  `parent_id` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující přehled podporovaných rolí';
+
+--
+-- Vypisuji data pro tabulku `roles`
+--
+
+INSERT INTO `roles` (`id`, `parent_id`) VALUES
+('guest', NULL),
+('registered', 'guest'),
+('admin', 'registered');
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `user`
+--
+
+CREATE TABLE `user` (
+  `user_id` int(11) NOT NULL,
+  `name` varchar(200) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL,
+  `password` varchar(200) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL,
+  `role` varchar(20) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL,
+  `active` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_czech_ci;
+
+--
+-- Vypisuji data pro tabulku `user`
+--
+
+INSERT INTO `user` (`user_id`, `name`, `email`, `password`, `role`, `active`) VALUES
+(1, 'Eliška', 'voke01@vse.cz', '', 'registered', 1),
+(2, 'elicek', 'evokounova8@gmail.com', '$2y$10$Ndo4f/zvAGz0FF8NIT5Pa.nkT7d77EF7VI9pFhw/yxm6/gjvBTh6S', 'registered', 1),
+(3, 'test', 'mail@mail.cz', '$2y$10$iBJbfVzvHCLiqXbaAjHNKu3J2/dfGMxqBPpyW8XWbO0ZGI.VJoSs6', 'admin', 1);
+
+--
+-- Indexy pro exportované tabulky
+--
+
+--
+-- Indexy pro tabulku `category`
+--
+ALTER TABLE `category`
+  ADD PRIMARY KEY (`category_id`);
+
+--
+-- Indexy pro tabulku `plant`
+--
+ALTER TABLE `plant`
+  ADD PRIMARY KEY (`plant_id`),
+  ADD KEY `fk_plant_owner` (`owner`),
+  ADD KEY `idx_plant_name` (`name`);
+
+--
+-- Indexy pro tabulku `plant_category_map`
+--
+ALTER TABLE `plant_category_map`
+  ADD PRIMARY KEY (`plant_category_map_id`),
+  ADD KEY `fk_plant_category_map_plant_id` (`plant_id`),
+  ADD KEY `fk_plant_category_map_category_id` (`category_id`);
+
+--
+-- Indexy pro tabulku `plant_user_like_map`
+--
+ALTER TABLE `plant_user_like_map`
+  ADD PRIMARY KEY (`plant_user_like_map_id`),
+  ADD KEY `fk_plant_user_like_map_plant_id` (`plant_id`),
+  ADD KEY `fk_plant_user_like_map_user_id` (`user_id`);
+
+--
+-- Indexy pro tabulku `resources`
+--
+ALTER TABLE `resources`
+  ADD PRIMARY KEY (`role`,`resource`,`action`),
+  ADD KEY `role` (`role`);
+
+--
+-- Indexy pro tabulku `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `parent_role` (`parent_id`);
+
+--
+-- Indexy pro tabulku `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`user_id`),
+  ADD KEY `idx_user_name` (`name`),
+  ADD KEY `userRule` (`role`);
+
+--
+-- AUTO_INCREMENT pro tabulky
+--
+
+--
+-- AUTO_INCREMENT pro tabulku `category`
+--
+ALTER TABLE `category`
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT pro tabulku `plant`
+--
+ALTER TABLE `plant`
+  MODIFY `plant_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT pro tabulku `plant_category_map`
+--
+ALTER TABLE `plant_category_map`
+  MODIFY `plant_category_map_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
+-- AUTO_INCREMENT pro tabulku `plant_user_like_map`
+--
+ALTER TABLE `plant_user_like_map`
+  MODIFY `plant_user_like_map_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT pro tabulku `user`
+--
+ALTER TABLE `user`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- Omezení pro exportované tabulky
+--
+
+--
+-- Omezení pro tabulku `plant`
+--
+ALTER TABLE `plant`
+  ADD CONSTRAINT `fk_plant_owner` FOREIGN KEY (`owner`) REFERENCES `user` (`user_id`);
+
+--
+-- Omezení pro tabulku `plant_category_map`
+--
+ALTER TABLE `plant_category_map`
+  ADD CONSTRAINT `fk_plant_category_map_category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`),
+  ADD CONSTRAINT `fk_plant_category_map_plant_id` FOREIGN KEY (`plant_id`) REFERENCES `plant` (`plant_id`);
+
+--
+-- Omezení pro tabulku `plant_user_like_map`
+--
+ALTER TABLE `plant_user_like_map`
+  ADD CONSTRAINT `fk_plant_user_like_map_plant_id` FOREIGN KEY (`plant_id`) REFERENCES `plant` (`plant_id`),
+  ADD CONSTRAINT `fk_plant_user_like_map_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+--
+-- Omezení pro tabulku `resources`
+--
+ALTER TABLE `resources`
+  ADD CONSTRAINT `resources_ibfk_1` FOREIGN KEY (`role`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
+
+--
+-- Omezení pro tabulku `roles`
+--
+ALTER TABLE `roles`
+  ADD CONSTRAINT `parentRole` FOREIGN KEY (`parent_id`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
+
+--
+-- Omezení pro tabulku `user`
+--
+ALTER TABLE `user`
+  ADD CONSTRAINT `userRule` FOREIGN KEY (`role`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

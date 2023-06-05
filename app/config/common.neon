@@ -1,0 +1,32 @@
+#
+# WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+# https://nette.org/security-warning
+#
+parameters:
+
+
+php:
+	date.timezone: Europe/Prague
+
+
+application:
+	errorPresenter: Error
+	mapping:
+		*: Blog\*Module\Presenters\*Presenter
+
+
+session:
+	expiration: 14 days
+
+
+services:
+	router: Blog\RouterFactory::createRouter
+	pdo: \PDO(%pdo.connectionString%,%pdo.username%,%pdo.password%)
+	fb: JanuSoftware\Facebook\Facebook([
+	 'app_id' = %fb.app_id%,
+	 'app_secret' = %fb.app_secret%,
+	 'default_graph_version' = %fb.default_graph_version%])
+	authorizator: Blog\Model\Authorizator
+	- Blog\Model\PlantsModel
+	- Blog\Model\UsersModel
+	- Blog\Model\CategoriesModel

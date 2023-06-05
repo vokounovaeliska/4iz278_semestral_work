@@ -1,0 +1,50 @@
+{block content}
+
+<h1 n:block="title">{$category->name}</h1>
+{var $tempPlants = null}
+{if $user->isAllowed('plant','add') && $category->category_id!=6}
+    <a href="{link Plant:add category=>$category->category_id}">přidat květinu...</a>
+{/if}
+
+{if $category->category_id == 5}
+    {var $tempPlants = $plantsMine}
+{elseif $category->category_id == 6}
+    {var $tempPlants = $plantsLiked}
+{else}
+    {var $tempPlants = $plants}
+{/if}
+
+{foreach $tempPlants as $plant}
+    <hr>
+    <plant>
+        <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
+        <dl class="articleInfo">
+            <dt>Majitel:</dt>
+            <dd><a href="{link Plant:listByOwner owner=>$plant->owner_id}">{$plant->owner}</a></dd>
+            <dt>Latinský název:</dt>
+            <dd>{$plant->latin_name}</dd>
+            <dt>Popis:</dt>
+            <dd>{$plant->description}</dd>
+            <dt>Datum pořízení/nákupu:</dt>
+            <dd>{$plant->getBoughtDate()}</dd>
+            <dt>Frekvence zalévání (po kolika dnech):</dt>
+            <dd>{$plant->getWaterFrequency()}</dd>
+            <dt>Vhodná teplota</dt>
+            <dd>{$plant->getTemperature()}</dd>
+            <dt>Světelné podmínky</dt>
+            <dd>{$plant->getLighting() == 'direct'? 'slunné' : 'stinné'}</dd>
+            <dt>Má ráda rosení</dt>
+            <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
+            <dt>Původ</dt>
+            <dd>{$plant->getOriginCzech()}</dd>
+        </dl>
+        <div>
+            <p>Počet lajků: {if $plant->likesCount} {$plant->likesCount} {else} 0 {/if}</p>
+            {if $plant->getImagePath()}
+                <img width="200" src="{$plant->getImagePath()}" alt="Obrázek rostliny">
+            {else}
+                <p>Fotka není k dispozici.</p>
+            {/if}
+        </div>
+    </plant>
+{/foreach}
