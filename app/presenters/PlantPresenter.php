@@ -165,12 +165,12 @@ class PlantPresenter extends BasePresenter{
       ->setHtmlAttribute('class','wysiwyg')
       ->setRequired('Zadejte zda má rostlina raději slunné nebo stinné místo');
       $origin = [
-          1 => 'Europe',
-          2 => 'Asia',
-          3 => 'South America',
-          4 => 'North America',
-          5 => 'Australia',
-          6 => 'Africa'
+          1 => 'Evropa',
+          2 => 'Asie',
+          3 => 'Jižní Amerika',
+          4 => 'Severní Amerika',
+          5 => 'Austrálie',
+          6 => 'Afrika'
       ];
       $form->addSelect('origin', 'Země původu', $origin)
         ->setHtmlAttribute('class','wysiwyg');
@@ -192,6 +192,8 @@ class PlantPresenter extends BasePresenter{
         ->addRule(Form::IMAGE, 'Vložte obrázek')
         ->addRule(Form::MIME_TYPE, 'Vložte obrázek ve formátu JPG, JPEG nebo PNG.', ['image/jpeg', 'image/png'])
         ->setHtmlAttribute('accept', '.jpg,.jpeg,.png');
+    $form->addCheckbox('plant_path', 'V případě, že chcete smazat fotku, zaškrtněte políčko.')
+        ->setHtmlAttribute('class','wysiwyg');
     $form->addSubmit('save','uložit')
       ->onClick[]=function(SubmitButton $button){
       //funkce po úspěšném odeslání formuláře
@@ -237,12 +239,17 @@ class PlantPresenter extends BasePresenter{
                chmod($destinationPath, $permissions);
                $plant->setImagePath('/~voke01/final/www/img/' . $newFilename);
             }
-
             }
+
+        if($data['plant_path']){
+            $this->deletePhoto($data['plant_id']);
+        }
+
           $selectedCategories = $data['category'];
           array_push($selectedCategories, 5);
           $plant->setCategories($selectedCategories);
           $plant->owner=$this->user->id;
+
 
         $result=$this->plantsModel->save($plant);
 
@@ -270,6 +277,18 @@ class PlantPresenter extends BasePresenter{
       }
     };
     return $form;
+  }
+
+  public function deletePhoto($id) {
+      if (!$plant=$this->plantsModel->find($id)){
+          throw new BadRequestException('Požadovaná květina nebyla nalezena.');
+      }
+      $result=$this->plantsModel->deleteImagePath($plant->plant_id);
+
+      if ($result){
+          $this->flashMessage('Fotka smazána.');
+          $this->redirect('Plant:show',['id'=>$id]);//přesměrování na zobrazení kategorie
+      }
   }
 
     public function actionLike($id){

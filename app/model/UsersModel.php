@@ -146,12 +146,13 @@ class UsersModel implements \Nette\Security\IAuthenticator{
    * @throws AuthenticationException
    */
   function authenticate(array $credentials){
-      \Tracy\OutputDebugger::enable();
+      //  \Tracy\OutputDebugger::enable();
       if(count($credentials) == 1){
           return $this->authenticateViaFacebook($credentials);
       }
 
     list($username,$password)=$credentials;//TODO pamatujete si tuhle konstrukci?
+
     $user=$this->findByEmail($username);
     if (!$user){
       throw new AuthenticationException('Uživatelský účet nenalezen.',self::IDENTITY_NOT_FOUND);

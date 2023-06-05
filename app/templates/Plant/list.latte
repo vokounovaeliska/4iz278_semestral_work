@@ -36,7 +36,7 @@
             <dt>Má ráda rosení</dt>
             <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
             <dt>Původ</dt>
-            <dd>{$plant->getOrigin()}</dd>
+            <dd>{$plant->getOriginCzech()}</dd>
         </dl>
         <div>
             <p>Počet lajků: {if $plant->likesCount} {$plant->likesCount} {else} 0 {/if}</p>

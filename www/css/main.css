@@ -58,6 +58,7 @@ body nav ul li a {
 body nav ul li a.active {
   background: #057705FF;
   color: #fff;
+  border-radius: 5px;
 }
 body section#main {
   padding: 10px 20px;
@@ -92,5 +93,9 @@ body section#main plant dl.articleInfo dd {
 
 body section#main hr {
   margin: 2vh 0 2vh 0;
+}
+
+body section#main plant img {
+  border-radius: 5px;
 }
 

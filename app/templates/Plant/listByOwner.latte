@@ -8,6 +8,7 @@
 
   {if !empty($plantsByOwner)}
     {foreach $plantsByOwner as $plant}
+      <hr>
       <plant>
         <h2><a href="{link Plant:show id=>$plant->plant_id}">{$plant->name}</a></h2>
         <dl class="articleInfo">
@@ -28,7 +29,7 @@
           <dt>Má ráda rosení</dt>
           <dd>{if $plant->isHumidity()==1} ano {else} ne {/if}</dd>
           <dt>Původ</dt>
-          <dd>{$plant->getOrigin()}</dd>
+          <dd>{$plant->getOriginCzech()}</dd>
         </dl>
         <div>
           <p>Počet lajků: {if $plant->likesCount} {$plant->likesCount} {else} 0 {/if}</p>

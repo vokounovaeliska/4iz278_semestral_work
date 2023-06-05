@@ -265,6 +265,31 @@ class Plant
         return $this->origin;
     }
 
+
+    public function getOriginCzech()
+    {
+        if($this->origin == 'Europe'){
+            return 'Evropa';
+        }
+        if($this->origin == 'Asia'){
+            return 'Asie';
+        }
+        if($this->origin == 'South America'){
+            return 'Jižní Amerika';
+        }
+        if($this->origin == 'North America'){
+            return 'Severní Amerika';
+        }
+        if($this->origin == 'Australia'){
+            return 'Austrálie';
+        }
+        if($this->origin == 'Africa'){
+            return 'Afrika';
+        }
+
+        return $this->origin;
+    }
+
     /**
      * @param string $origin
      */
